@@ -1,0 +1,547 @@
+[
+  {
+    "id": "ivory-floral-kurta-palazzo",
+    "slug": "ivory-floral-kurta-palazzo",
+    "title": "Ivory Floral Kurta & Palazzo",
+    "subtitle": "Hand block · Cotton · Festive",
+    "collection": "festive-edit",
+    "mood": "festive",
+    "price": 2799,
+    "mrp": 4999,
+    "discountPct": 44,
+    "tag": "Editor's Pick",
+    "story": "An heirloom in cotton — ivory ground, rose block florals, made for slow temple evenings.",
+    "fabric": "Hand block on soft cotton",
+    "colorName": "Ivory",
+    "colorHex": "#F4ECDF",
+    "sizes": ["XS", "S", "M", "L", "XL", "XXL"],
+    "stock": 12,
+    "popularity": 98,
+    "createdAt": "2026-05-18T10:00:00.000Z",
+    "description": "Soft cotton kurta with hand-blocked floral motifs in rose and pista, paired with breezy palazzo pants. Cut to skim the body, finished by hand, tailored for festive evenings and long temple visits.",
+    "images": {
+      "grid": "/products/grid/ivory-floral-kurta-palazzo.png",
+      "hero": "/products/grid/ivory-floral-kurta-palazzo.png",
+      "hover": "/products/grid/rose-pink-suit-set.png",
+      "pdp": [
+        "/products/grid/ivory-floral-kurta-palazzo.png"
+      ]
+    }
+  },
+  {
+    "id": "rose-pink-suit-set",
+    "slug": "rose-pink-suit-set",
+    "title": "Rose Pink Chikan Suit Set",
+    "subtitle": "Chikankari · Cotton · 3 piece",
+    "collection": "festive-edit",
+    "mood": "festive",
+    "price": 3299,
+    "mrp": 5499,
+    "discountPct": 40,
+    "tag": "New",
+    "story": "Rose pink chikankari kurta with matching salwar and a softly crinkled dupatta.",
+    "fabric": "Hand chikankari on cotton",
+    "colorName": "Rose Pink",
+    "colorHex": "#E3838E",
+    "sizes": ["S", "M", "L", "XL", "XXL"],
+    "stock": 9,
+    "popularity": 92,
+    "createdAt": "2026-06-02T10:00:00.000Z",
+    "description": "Rose pink chikankari kurta with matching salwar and a softly draped dupatta. An understated festive pairing in the lightest cotton, finished with tassel detailing.",
+    "images": {
+      "grid": "/products/grid/rose-pink-suit-set.png",
+      "hover": "/products/grid/rose-pink-chikan-tunic.png",
+      "pdp": [
+        "/products/grid/rose-pink-suit-set.png"
+      ]
+    }
+  },
+  {
+    "id": "crimson-embroidered-kurta",
+    "slug": "crimson-embroidered-kurta",
+    "title": "Crimson Garden Short Kurta",
+    "subtitle": "Tonal embroidery · Cotton · Short",
+    "collection": "festive-edit",
+    "mood": "festive",
+    "price": 1999,
+    "mrp": 3699,
+    "discountPct": 46,
+    "tag": "Bestseller",
+    "story": "Tonal embroidery, bell sleeves, made for golden-hour gardens.",
+    "fabric": "Tonal embroidery on soft cotton",
+    "colorName": "Crimson",
+    "colorHex": "#C02B3C",
+    "sizes": ["XS", "S", "M", "L", "XL"],
+    "stock": 14,
+    "popularity": 88,
+    "createdAt": "2026-04-29T10:00:00.000Z",
+    "description": "A short crimson cotton kurta with tonal thread embroidery across the yoke, finished with delicate cuff detailing. Pair with crisp white palazzos for an easy festive look.",
+    "images": {
+      "grid": "/products/grid/crimson-embroidered-kurta.png",
+      "hover": "/products/grid/scarlet-chikan-workshop-kurta.jpeg",
+      "pdp": [
+        "/products/grid/crimson-embroidered-kurta.png"
+      ]
+    }
+  },
+  {
+    "id": "rose-pink-chikan-tunic",
+    "slug": "rose-pink-chikan-tunic",
+    "title": "Rose Pink Chikan Tunic",
+    "subtitle": "Lucknowi chikan · Everyday",
+    "collection": "everyday",
+    "mood": "everyday",
+    "price": 1799,
+    "mrp": 3199,
+    "discountPct": 44,
+    "tag": "Bestseller",
+    "story": "A breezy Lucknowi chikan tunic for slow, sunlit mornings.",
+    "fabric": "Lucknowi chikankari on cotton",
+    "colorName": "Rose Pink",
+    "colorHex": "#E3838E",
+    "sizes": ["XS", "S", "M", "L", "XL", "XXL"],
+    "stock": 22,
+    "popularity": 96,
+    "createdAt": "2026-03-11T10:00:00.000Z",
+    "description": "A breezy Lucknowi chikan tunic in rose pink with all-over jaali work. Light, layered, made for slow mornings and easy afternoons.",
+    "images": {
+      "grid": "/products/grid/rose-pink-chikan-tunic.png",
+      "hover": "/products/grid/blush-pink-chikan-tunic.jpeg",
+      "pdp": [
+        "/products/grid/rose-pink-chikan-tunic.png"
+      ]
+    }
+  },
+  {
+    "id": "sage-green-tea-dress",
+    "slug": "sage-green-tea-dress",
+    "title": "Sage Green Tea Dress",
+    "subtitle": "Cotton · Bell sleeve · Short",
+    "collection": "tea-time",
+    "mood": "tea-time",
+    "price": 1899,
+    "mrp": 3499,
+    "discountPct": 46,
+    "tag": "Tea Time",
+    "story": "Bell sleeves, tonal florals, soft drape — a Sunday afternoon in a dress.",
+    "fabric": "Soft cotton with tonal embroidery",
+    "colorName": "Sage Green",
+    "colorHex": "#95A876",
+    "sizes": ["XS", "S", "M", "L", "XL"],
+    "stock": 11,
+    "popularity": 78,
+    "createdAt": "2026-05-30T10:00:00.000Z",
+    "description": "A soft sage-green tea dress with bell sleeves and tonal embroidery. Cut short and easy for long verandah afternoons.",
+    "images": {
+      "grid": "/products/grid/sage-green-tea-dress.png",
+      "hover": "/products/grid/parrot-green-chikan-kurta.jpeg",
+      "pdp": [
+        "/products/grid/sage-green-tea-dress.png"
+      ]
+    }
+  },
+  {
+    "id": "noir-festive-floral-set",
+    "slug": "noir-festive-floral-set",
+    "title": "Noir Aari Festive Set",
+    "subtitle": "Aari embroidery · Cotton · 2 piece",
+    "collection": "festive-edit",
+    "mood": "festive",
+    "price": 3499,
+    "mrp": 5999,
+    "discountPct": 42,
+    "tag": "Limited",
+    "story": "Midnight black ground, aari florals in marigold and rose — designed to be remembered.",
+    "fabric": "Aari embroidery on cotton",
+    "colorName": "Noir",
+    "colorHex": "#1A1614",
+    "sizes": ["S", "M", "L", "XL", "XXL"],
+    "stock": 6,
+    "popularity": 91,
+    "createdAt": "2026-06-08T10:00:00.000Z",
+    "description": "A noir cotton kurta with multi-colour aari embroidery in marigold, rose and ochre, paired with matching pants. Cut a little fuller through the hem for movement.",
+    "images": {
+      "grid": "/products/grid/noir-festive-floral-set.jpeg",
+      "hover": "/products/grid/ivory-festive-floral-set.jpeg",
+      "pdp": [
+        "/products/grid/noir-festive-floral-set.jpeg"
+      ]
+    }
+  },
+  {
+    "id": "ivory-festive-floral-set",
+    "slug": "ivory-festive-floral-set",
+    "title": "Ivory Aari Festive Set",
+    "subtitle": "Aari embroidery · Cotton · 2 piece",
+    "collection": "festive-edit",
+    "mood": "festive",
+    "price": 3499,
+    "mrp": 5999,
+    "discountPct": 42,
+    "tag": "Festive",
+    "story": "Ivory ground, riotous aari florals — quiet and loud at the same time.",
+    "fabric": "Aari embroidery on cotton",
+    "colorName": "Ivory",
+    "colorHex": "#F4ECDF",
+    "sizes": ["S", "M", "L", "XL", "XXL"],
+    "stock": 7,
+    "popularity": 89,
+    "createdAt": "2026-06-08T10:00:00.000Z",
+    "description": "Ivory cotton kurta with riotous aari florals across yoke and hem, paired with matching palazzo. Built for festive nights, weddings and milestone evenings.",
+    "images": {
+      "grid": "/products/grid/ivory-festive-floral-set.jpeg",
+      "hover": "/products/grid/noir-festive-floral-set.jpeg",
+      "pdp": [
+        "/products/grid/ivory-festive-floral-set.jpeg"
+      ]
+    }
+  },
+  {
+    "id": "parrot-green-chikan-kurta",
+    "slug": "parrot-green-chikan-kurta",
+    "title": "Parrot Green Chikan Kurta",
+    "subtitle": "Lucknowi chikan · Straight cut",
+    "collection": "festive-edit",
+    "mood": "festive",
+    "price": 2299,
+    "mrp": 3999,
+    "discountPct": 43,
+    "tag": "Festive",
+    "story": "Parrot green with snow-white chikan — a colour that always finds the light.",
+    "fabric": "Hand chikankari on mul cotton",
+    "colorName": "Parrot Green",
+    "colorHex": "#7DC03C",
+    "sizes": ["XS", "S", "M", "L", "XL", "XXL"],
+    "stock": 13,
+    "popularity": 90,
+    "createdAt": "2026-06-12T10:00:00.000Z",
+    "description": "Parrot green mul-cotton kurta with all-over chikankari in snow-white thread. Straight cut, three-quarter sleeves, finished with tonal buttons.",
+    "images": {
+      "grid": "/products/grid/parrot-green-chikan-kurta.jpeg",
+      "hover": "/products/grid/parrot-green-chikan-kurta-alt.jpeg",
+      "pdp": [
+        "/products/grid/parrot-green-chikan-kurta.jpeg",
+        "/products/grid/parrot-green-chikan-kurta-alt.jpeg",
+        "/products/grid/parrot-green-chikan-kurta-2.jpeg"
+      ]
+    }
+  },
+  {
+    "id": "wine-chikan-kurta",
+    "slug": "wine-chikan-kurta",
+    "title": "Wine Chikan Kurta",
+    "subtitle": "Lucknowi chikan · Straight cut",
+    "collection": "festive-edit",
+    "mood": "festive",
+    "price": 2399,
+    "mrp": 4199,
+    "discountPct": 43,
+    "tag": "Festive",
+    "story": "Deep wine cotton with snow-white chikan, cut to flatter.",
+    "fabric": "Hand chikankari on mul cotton",
+    "colorName": "Wine",
+    "colorHex": "#6A2335",
+    "sizes": ["XS", "S", "M", "L", "XL", "XXL"],
+    "stock": 10,
+    "popularity": 86,
+    "createdAt": "2026-06-12T10:00:00.000Z",
+    "description": "Deep wine mul-cotton kurta with intricate chikankari yoke, side slits and three-quarter sleeves. Pair with cream churidar for an easy festive evening.",
+    "images": {
+      "grid": "/products/grid/wine-chikan-kurta.jpeg",
+      "hover": "/products/grid/wine-chikan-kurta-alt.jpeg",
+      "pdp": [
+        "/products/grid/wine-chikan-kurta.jpeg",
+        "/products/grid/wine-chikan-kurta-alt.jpeg"
+      ]
+    }
+  },
+  {
+    "id": "royal-blue-chikan-kurta",
+    "slug": "royal-blue-chikan-kurta",
+    "title": "Royal Blue Chikan Kurta",
+    "subtitle": "Lucknowi chikan · Straight cut",
+    "collection": "festive-edit",
+    "mood": "festive",
+    "price": 2399,
+    "mrp": 4199,
+    "discountPct": 43,
+    "tag": "Bestseller",
+    "story": "A royal blue you'll keep reaching for.",
+    "fabric": "Hand chikankari on mul cotton",
+    "colorName": "Royal Blue",
+    "colorHex": "#2C4FB8",
+    "sizes": ["XS", "S", "M", "L", "XL", "XXL"],
+    "stock": 11,
+    "popularity": 94,
+    "createdAt": "2026-06-12T10:00:00.000Z",
+    "description": "Royal blue mul-cotton kurta with snow-white chikankari across the yoke and graceful bootis down the body. Lightweight, breezy, a wardrobe staple.",
+    "images": {
+      "grid": "/products/grid/royal-blue-chikan-kurta.jpeg",
+      "hover": "/products/grid/royal-blue-chikan-kurta-alt.jpeg",
+      "pdp": [
+        "/products/grid/royal-blue-chikan-kurta.jpeg",
+        "/products/grid/royal-blue-chikan-kurta-alt.jpeg",
+        "/products/grid/royal-blue-chikan-kurta-2.jpeg"
+      ]
+    }
+  },
+  {
+    "id": "charcoal-chikan-kurta",
+    "slug": "charcoal-chikan-kurta",
+    "title": "Charcoal Chikan Kurta",
+    "subtitle": "Lucknowi chikan · Straight cut",
+    "collection": "everyday",
+    "mood": "everyday",
+    "price": 2299,
+    "mrp": 3999,
+    "discountPct": 43,
+    "tag": "Editor's Pick",
+    "story": "An everyday charcoal that quietly outclasses everything else in the room.",
+    "fabric": "Hand chikankari on mul cotton",
+    "colorName": "Charcoal",
+    "colorHex": "#3A3C42",
+    "sizes": ["XS", "S", "M", "L", "XL", "XXL"],
+    "stock": 12,
+    "popularity": 85,
+    "createdAt": "2026-06-12T10:00:00.000Z",
+    "description": "Charcoal grey mul-cotton kurta with hand-finished chikankari yoke and tonal bootis. The everyday piece that quietly outclasses everything else.",
+    "images": {
+      "grid": "/products/grid/charcoal-chikan-kurta.jpeg",
+      "hover": "/products/grid/charcoal-chikan-kurta-alt.jpeg",
+      "pdp": [
+        "/products/grid/charcoal-chikan-kurta.jpeg",
+        "/products/grid/charcoal-chikan-kurta-alt.jpeg"
+      ]
+    }
+  },
+  {
+    "id": "charcoal-chikan-closet-kurta",
+    "slug": "charcoal-chikan-closet-kurta",
+    "title": "Charcoal Tonal Chikan Tunic",
+    "subtitle": "Tonal chikan · Soft cotton",
+    "collection": "light-wear",
+    "mood": "light-wear",
+    "price": 1899,
+    "mrp": 3299,
+    "discountPct": 42,
+    "tag": "Light Wear",
+    "story": "All-tonal chikan, soft as breath — for the days you want to disappear into your clothes.",
+    "fabric": "Tonal chikankari on soft cotton",
+    "colorName": "Charcoal",
+    "colorHex": "#3A3C42",
+    "sizes": ["XS", "S", "M", "L", "XL"],
+    "stock": 9,
+    "popularity": 76,
+    "createdAt": "2026-06-14T10:00:00.000Z",
+    "description": "Soft charcoal cotton tunic with all-over tonal chikankari. Relaxed fit through the body, finished with a notched neckline — the everyday piece you live in.",
+    "images": {
+      "grid": "/products/grid/charcoal-chikan-closet-kurta.jpeg",
+      "hover": "/products/grid/charcoal-chikan-kurta.jpeg",
+      "pdp": [
+        "/products/grid/charcoal-chikan-closet-kurta.jpeg"
+      ]
+    }
+  },
+  {
+    "id": "scarlet-chikan-workshop-kurta",
+    "slug": "scarlet-chikan-workshop-kurta",
+    "title": "Scarlet Tonal Chikan Kurta",
+    "subtitle": "Tonal chikan · Soft cotton",
+    "collection": "everyday",
+    "mood": "everyday",
+    "price": 2199,
+    "mrp": 3899,
+    "discountPct": 44,
+    "tag": "New",
+    "story": "A quiet scarlet, tonal chikan, soft as breath.",
+    "fabric": "Tonal chikankari on soft cotton",
+    "colorName": "Scarlet",
+    "colorHex": "#C73A40",
+    "sizes": ["XS", "S", "M", "L", "XL", "XXL"],
+    "stock": 8,
+    "popularity": 80,
+    "createdAt": "2026-06-12T10:00:00.000Z",
+    "description": "Scarlet red mul-cotton kurta with all-over tonal chikankari. Straight cut, soft drape, finished with deep side slits.",
+    "images": {
+      "grid": "/products/grid/scarlet-chikan-workshop-kurta.jpeg",
+      "hover": "/products/grid/red-chikan-haveli-kurta.jpeg",
+      "pdp": [
+        "/products/grid/scarlet-chikan-workshop-kurta.jpeg"
+      ]
+    }
+  },
+  {
+    "id": "red-chikan-haveli-kurta",
+    "slug": "red-chikan-haveli-kurta",
+    "title": "Marigold Red Chikan Kurta",
+    "subtitle": "Lucknowi chikan · A-line",
+    "collection": "festive-edit",
+    "mood": "festive",
+    "price": 2499,
+    "mrp": 4399,
+    "discountPct": 43,
+    "tag": "Festive",
+    "story": "Photographed in a haveli courtyard, the colour of marigolds — it knows.",
+    "fabric": "Hand chikankari on mul cotton",
+    "colorName": "Marigold Red",
+    "colorHex": "#D8323D",
+    "sizes": ["XS", "S", "M", "L", "XL"],
+    "stock": 9,
+    "popularity": 87,
+    "createdAt": "2026-06-15T10:00:00.000Z",
+    "description": "Marigold red mul-cotton kurta with snow-white chikankari yoke and bootis. Soft A-line for movement, three-quarter sleeves, made for festive afternoons.",
+    "images": {
+      "grid": "/products/grid/red-chikan-haveli-kurta.jpeg",
+      "hover": "/products/grid/red-chikan-haveli-kurta-alt.jpeg",
+      "pdp": [
+        "/products/grid/red-chikan-haveli-kurta.jpeg",
+        "/products/grid/red-chikan-haveli-kurta-alt.jpeg"
+      ]
+    }
+  },
+  {
+    "id": "berry-chikan-kurta",
+    "slug": "berry-chikan-kurta",
+    "title": "Berry Tonal Chikan Kurta",
+    "subtitle": "Tonal chikan · Straight cut",
+    "collection": "festive-edit",
+    "mood": "festive",
+    "price": 2299,
+    "mrp": 3999,
+    "discountPct": 43,
+    "tag": "New",
+    "story": "A deep berry that pairs with everything — and somehow improves it.",
+    "fabric": "Tonal chikankari on mul cotton",
+    "colorName": "Berry",
+    "colorHex": "#A23A7A",
+    "sizes": ["XS", "S", "M", "L", "XL", "XXL"],
+    "stock": 7,
+    "popularity": 82,
+    "createdAt": "2026-06-13T10:00:00.000Z",
+    "description": "Berry mul-cotton kurta with elegant tonal chikankari yoke and bootis. Straight cut, side slits — quiet, deep, deeply flattering.",
+    "images": {
+      "grid": "/products/grid/berry-chikan-kurta.jpeg",
+      "hover": "/products/grid/wine-chikan-kurta.jpeg",
+      "pdp": [
+        "/products/grid/berry-chikan-kurta.jpeg"
+      ]
+    }
+  },
+  {
+    "id": "lemon-yellow-chikan-kurta",
+    "slug": "lemon-yellow-chikan-kurta",
+    "title": "Lemon Yellow Chikan Kurta",
+    "subtitle": "Lucknowi chikan · Cotton",
+    "collection": "light-wear",
+    "mood": "light-wear",
+    "price": 1999,
+    "mrp": 3499,
+    "discountPct": 43,
+    "tag": "Light Wear",
+    "story": "Pale lemon, soft chikan — a kurta that feels like sunlight.",
+    "fabric": "Hand chikankari on cotton",
+    "colorName": "Lemon",
+    "colorHex": "#F0E2A0",
+    "sizes": ["XS", "S", "M", "L", "XL"],
+    "stock": 11,
+    "popularity": 79,
+    "createdAt": "2026-06-14T10:00:00.000Z",
+    "description": "Pale lemon yellow cotton kurta with tonal chikankari. Soft drape, half-placket, made for long, lazy summer afternoons.",
+    "images": {
+      "grid": "/products/grid/lemon-yellow-chikan-kurta.jpeg",
+      "pdp": [
+        "/products/grid/lemon-yellow-chikan-kurta.jpeg"
+      ]
+    }
+  },
+  {
+    "id": "peach-chikan-tunic",
+    "slug": "peach-chikan-tunic",
+    "title": "Peach Chikan Tunic",
+    "subtitle": "Lucknowi chikan · Short",
+    "collection": "tea-time",
+    "mood": "tea-time",
+    "price": 1899,
+    "mrp": 3299,
+    "discountPct": 42,
+    "tag": "Tea Time",
+    "story": "Powdered peach, fine chikan, jhumkas optional — though we'd insist.",
+    "fabric": "Hand chikankari on cotton",
+    "colorName": "Peach",
+    "colorHex": "#F4BFA8",
+    "sizes": ["XS", "S", "M", "L", "XL"],
+    "stock": 13,
+    "popularity": 84,
+    "createdAt": "2026-06-15T10:00:00.000Z",
+    "description": "Powdered peach cotton tunic with fine white chikan across the yoke and graceful bootis. Cut short for layering, finished with tonal buttons.",
+    "images": {
+      "grid": "/products/grid/peach-chikan-tunic.jpeg",
+      "hover": "/products/grid/blush-pink-chikan-tunic.jpeg",
+      "pdp": [
+        "/products/grid/peach-chikan-tunic.jpeg"
+      ]
+    }
+  },
+  {
+    "id": "blush-pink-chikan-tunic",
+    "slug": "blush-pink-chikan-tunic",
+    "title": "Blush Pink Chikan Tunic",
+    "subtitle": "Lucknowi chikan · Cotton",
+    "collection": "light-wear",
+    "mood": "light-wear",
+    "price": 1899,
+    "mrp": 3299,
+    "discountPct": 42,
+    "tag": "Light Wear",
+    "story": "The softest blush, the softest chikan — a tunic to live in.",
+    "fabric": "Hand chikankari on cotton",
+    "colorName": "Blush Pink",
+    "colorHex": "#F6CDC2",
+    "sizes": ["XS", "S", "M", "L", "XL", "XXL"],
+    "stock": 14,
+    "popularity": 83,
+    "createdAt": "2026-06-15T10:00:00.000Z",
+    "description": "Powder-soft blush pink cotton tunic with delicate chikankari across yoke and bootis. Straight cut, three-quarter sleeves, finished with tonal pintucks.",
+    "images": {
+      "grid": "/products/grid/blush-pink-chikan-tunic.jpeg",
+      "hover": "/products/grid/blush-pink-chikan-tunic-alt.jpeg",
+      "pdp": [
+        "/products/grid/blush-pink-chikan-tunic.jpeg",
+        "/products/grid/blush-pink-chikan-tunic-alt.jpeg"
+      ]
+    }
+  },
+  {
+    "id": "ivory-chikan-palace-set",
+    "slug": "ivory-chikan-palace-set",
+    "title": "Ivory Palace Chikan Set",
+    "subtitle": "Lucknowi chikan · 2 piece",
+    "collection": "festive-edit",
+    "mood": "festive",
+    "price": 3499,
+    "mrp": 5999,
+    "discountPct": 42,
+    "tag": "Heirloom",
+    "story": "Pure ivory chikan, photographed in a Lucknow palace at first light.",
+    "fabric": "Hand chikankari on mul cotton",
+    "colorName": "Ivory",
+    "colorHex": "#F4ECDF",
+    "sizes": ["XS", "S", "M", "L", "XL", "XXL"],
+    "stock": 8,
+    "popularity": 97,
+    "createdAt": "2026-06-18T10:00:00.000Z",
+    "description": "An ivory chikankari kurta with matching palazzo, finished entirely by hand in Lucknow. The most elegant white in your wardrobe — wear it once, wear it always.",
+    "images": {
+      "grid": "/products/grid/ivory-chikan-palace.jpeg",
+      "hero": "/products/grid/ivory-chikan-palace.jpeg",
+      "hover": "/products/grid/ivory-chikan-street.jpeg",
+      "pdp": [
+        "/products/grid/ivory-chikan-palace.jpeg",
+        "/products/grid/ivory-chikan-street.jpeg",
+        "/products/grid/ivory-chikan-street-2.jpeg",
+        "/products/grid/ivory-chikan-palace-back.jpeg",
+        "/products/grid/ivory-chikan-back-view.jpeg"
+      ]
+    }
+  }
+]
