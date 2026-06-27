@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Heart,
   Share2,
@@ -23,6 +23,7 @@ import { DualCTA } from "./DualCTA";
 import { addToCart } from "@/lib/cart-client";
 import { ProductCardBoutique } from "./ProductCardBoutique";
 import { isWishlisted, toggleWishlist } from "@/lib/wishlist-store";
+import { useVerification } from "@/hooks/useVerification";
 
 export function PdpClient({
   product,
@@ -39,6 +40,8 @@ export function PdpClient({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [wishlisted, setWishlisted] = useState(false);
+  const { requireVerification, VerificationGate } = useVerification();
+  const pendingAction = useRef<"buy" | null>(null);
 
   // Sync with persistent wishlist store after mount
   useEffect(() => {
@@ -60,6 +63,21 @@ export function PdpClient({
       return;
     }
     setError(null);
+
+    if (action === "buy") {
+      // Gate Buy Now behind OTP — skipped automatically if already verified
+      requireVerification(async () => {
+        setLoading(true);
+        const result = await addToCart(product.id, size, 1);
+        setLoading(false);
+        if (!result) { setError("Something went wrong."); return; }
+        router.push("/checkout");
+        router.refresh();
+      });
+      return;
+    }
+
+    // Add to bag — no verification needed
     setLoading(true);
     const result = await addToCart(product.id, size, 1);
     setLoading(false);
@@ -67,7 +85,7 @@ export function PdpClient({
       setError("Something went wrong. Please try again.");
       return;
     }
-    router.push(action === "buy" ? "/checkout" : "/cart");
+    router.push("/cart");
     router.refresh();
   }
 
@@ -75,6 +93,7 @@ export function PdpClient({
 
   return (
     <>
+      {VerificationGate}
       <div className="lg:grid lg:grid-cols-[1.15fr_1fr] lg:gap-14 lg:items-start">
         {/* Gallery */}
         <section className="lg:sticky lg:top-32">

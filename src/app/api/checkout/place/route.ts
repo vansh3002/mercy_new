@@ -2,11 +2,16 @@ import { NextResponse } from "next/server";
 import { ensureCartId } from "@/lib/cart-cookie";
 import { clearCart, getOrCreateCart, cartConfig } from "@/features/cart/store";
 import { buildCartView } from "@/features/cart/view";
-import { nextOrderId, saveOrder } from "@/features/orders/store";
+import { prisma } from "@/lib/prisma";
 import type { PlaceOrderInput } from "@/features/checkout/types";
-import type { Order } from "@/features/orders/types";
 
 const ADDRESS_FIELDS = ["name", "phone", "line1", "city", "state", "pincode"] as const;
+
+function generateOrderNumber(): string {
+  const ts = Date.now().toString(36).toUpperCase();
+  const rand = Math.random().toString(36).substring(2, 6).toUpperCase();
+  return `WM${ts}${rand}`;
+}
 
 function validate(input: Partial<PlaceOrderInput>): string | null {
   if (!input.address) return "missing_address";
@@ -20,54 +25,99 @@ function validate(input: Partial<PlaceOrderInput>): string | null {
   if (!/^[6-9]\d{9}$/.test(input.address.phone.replace(/\D/g, ""))) {
     return "invalid_phone";
   }
-  if (input.paymentMethod !== "UPI" && input.paymentMethod !== "CARD" && input.paymentMethod !== "COD") {
+  if (
+    input.paymentMethod !== "UPI" &&
+    input.paymentMethod !== "CARD" &&
+    input.paymentMethod !== "COD"
+  ) {
     return "invalid_payment";
   }
   return null;
 }
 
 export async function POST(req: Request) {
-  const cartId = ensureCartId();
-  const cart = getOrCreateCart(cartId);
+  const cartId = await ensureCartId();
   const body = (await req.json().catch(() => ({}))) as Partial<PlaceOrderInput>;
 
   const err = validate(body);
-  if (err) return NextResponse.json({ error: err }, { status: 400 });
+  if (err) {
+    return NextResponse.json({ error: err }, { status: 400 });
+  }
 
+  // Cart is now persisted in DB — always reliable
+  const cart = await getOrCreateCart(cartId);
   const view = await buildCartView(cart);
+
   if (view.lines.length === 0) {
     return NextResponse.json({ error: "empty_cart" }, { status: 400 });
   }
 
-  // simulate gateway latency
-  await new Promise((r) => setTimeout(r, 600));
-
   const codFee = body.paymentMethod === "COD" ? cartConfig.COD_FEE : 0;
+  const finalAmt = view.totals.total + codFee;
 
-  const id = nextOrderId();
-  const eta = new Date(Date.now() + 1000 * 60 * 60 * 24 * 5);
-  const order: Order = {
-    id,
-    createdAt: new Date().toISOString(),
-    status: "out_for_delivery",
-    lines: view.lines,
-    address: body.address!,
-    paymentMethod: body.paymentMethod!,
-    totals: {
-      subtotal: view.totals.subtotal,
-      discount: view.totals.discount,
-      shipping: view.totals.shipping,
-      codFee,
-      total: view.totals.total + codFee,
-      youSave: view.totals.youSave,
-    },
-    etaLabel: eta.toLocaleDateString("en-IN", {
-      weekday: "short",
-      day: "2-digit",
-      month: "short",
-    }),
-  };
-  saveOrder(order);
-  clearCart(cartId);
-  return NextResponse.json({ orderId: id });
+  try {
+    const order = await prisma.$transaction(async (tx) => {
+      // 1. Verify and deduct stock for each cart item
+      for (const line of view.lines) {
+        const product = await tx.product.findUnique({ where: { id: line.productId } });
+        if (!product) {
+          throw new Error(`product_not_found:${line.productId}`);
+        }
+
+        const inv = (product.sizeInventory ?? {}) as Record<string, number>;
+        const available = inv[line.size] ?? 0;
+
+        if (available < line.qty) {
+          throw new Error(`insufficient_stock:${product.title}:${line.size}`);
+        }
+
+        inv[line.size] = available - line.qty;
+        await tx.product.update({
+          where: { id: line.productId },
+          data: { sizeInventory: inv },
+        });
+      }
+
+      // 2. Create order in PostgreSQL
+      return await tx.order.create({
+        data: {
+          orderNumber: generateOrderNumber(),
+          customerName: body.address!.name,
+          phone: body.address!.phone,
+          email: null,
+          address: `${body.address!.line1}${body.address!.line2 ? ", " + body.address!.line2 : ""}`,
+          city: body.address!.city,
+          state: body.address!.state,
+          pincode: body.address!.pincode,
+          items: view.lines as any,
+          subtotal: view.totals.subtotal,
+          shippingCharge: view.totals.shipping + codFee,
+          discount: view.totals.discount,
+          finalAmount: finalAmt,
+          paymentMethod: body.paymentMethod!,
+          paymentStatus: body.paymentMethod === "COD" ? "PENDING" : "SUCCESS",
+          orderStatus: "UNDER_PACKAGING",
+        },
+      });
+    });
+
+    // Clear the DB cart
+    await clearCart(cartId);
+
+    return NextResponse.json({ orderId: order.id });
+  } catch (err: any) {
+    const msg = err.message || "unknown_error";
+    if (msg.startsWith("product_not_found:")) {
+      return NextResponse.json({ error: "Product not found in database" }, { status: 404 });
+    }
+    if (msg.startsWith("insufficient_stock:")) {
+      const parts = msg.split(":");
+      return NextResponse.json(
+        { error: `Insufficient stock for ${parts[1]} in size ${parts[2]}` },
+        { status: 400 },
+      );
+    }
+    console.error("[POST /api/checkout/place] Error:", err);
+    return NextResponse.json({ error: "Failed to place order" }, { status: 500 });
+  }
 }

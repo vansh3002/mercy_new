@@ -16,6 +16,7 @@ import {
   updateCartQty,
   applyCouponClient,
 } from "@/lib/cart-client";
+import { useVerification } from "@/hooks/useVerification";
 
 export function CartClient({ initial }: { initial: CartView | null }) {
   const router = useRouter();
@@ -23,6 +24,7 @@ export function CartClient({ initial }: { initial: CartView | null }) {
   const [pending, setPending] = useState<string | null>(null);
   const [couponInput, setCouponInput] = useState("");
   const [couponMsg, setCouponMsg] = useState<string | null>(null);
+  const { requireVerification, VerificationGate } = useVerification();
 
   useEffect(() => {
     if (!initial) {
@@ -69,11 +71,12 @@ export function CartClient({ initial }: { initial: CartView | null }) {
   }
 
   function checkout() {
-    router.push("/checkout");
+    requireVerification(() => router.push("/checkout"));
   }
 
   return (
     <div className="container-editorial py-6 lg:py-10">
+      {VerificationGate}
       <header className="text-center mb-2">
         <span className="label text-wine/80">Your Bag</span>
         <h1 className="serif text-[28px] lg:text-[40px] text-ink mt-1">

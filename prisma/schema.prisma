@@ -1,0 +1,92 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Admin {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("admins")
+}
+
+model Product {
+  id             String   @id @default(cuid())
+  slug           String   @unique
+  title          String
+  description    String?
+  price          Float
+  discountPrice  Float?
+  images         Json     @default("[]")
+  sizeInventory  Json     @default("{}")
+  pickupLocation String?  // Shiprocket pickup warehouse nickname
+  story          String?
+  fabric         String?
+  colorName      String?
+  colorHex       String?
+  active         Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@map("products")
+}
+
+model Order {
+  id                String   @id @default(cuid())
+  orderNumber       String   @unique
+  customerName      String
+  phone             String
+  email             String?
+  address           String
+  city              String
+  state             String
+  pincode           String
+  items             Json     @default("[]")
+  subtotal          Float
+  shippingCharge    Float    @default(0)
+  discount          Float    @default(0)
+  finalAmount       Float
+  paymentMethod     String   @default("razorpay")
+  razorpayOrderId   String?
+  razorpayPaymentId String?
+  paymentStatus     String   @default("PENDING")
+  orderStatus       String   @default("UNDER_PACKAGING")
+  shiprocketOrderId String?
+  awbNumber         String?
+  trackingUrl       String?
+  shipments         Json     @default("[]") // Stores array of Shiprocket shipments: [{ pickupLocation, shiprocketOrderId, shipmentId, awbNumber, trackingUrl, items }]
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@map("orders")
+}
+
+model Cart {
+  id         String   @id                   // = wm_cart cookie value
+  phone      String?                        // set after OTP verification
+  items      Json     @default("[]")        // CartItem[]
+  couponCode String?
+  couponAmt  Float?
+  updatedAt  DateTime @updatedAt
+
+  @@map("carts")
+}
+
+model Otp {
+  id        String   @id @default(cuid())
+  phone     String   @unique          // 10-digit Indian mobile
+  sessionId String                    // 2Factor session ID (used for verification)
+  attempts  Int      @default(0)      // block after 5 wrong guesses
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("otps")
+}

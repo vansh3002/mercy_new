@@ -12,7 +12,11 @@ export interface Address {
 
 export type PaymentMethod = "UPI" | "CARD" | "COD";
 
+import type { CartView } from "@/features/cart/types";
+
 export interface PlaceOrderInput {
   address: Address;
   paymentMethod: PaymentMethod;
+  /** Client-side cart snapshot — sent as a fallback when the in-memory store is stale */
+  cartSnapshot?: CartView;
 }

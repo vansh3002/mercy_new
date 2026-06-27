@@ -77,6 +77,7 @@ export async function placeOrder(payload: {
     tag?: "HOME" | "WORK" | "OTHER";
   };
   paymentMethod: "UPI" | "CARD" | "COD";
+  cartSnapshot?: import("@/features/cart/types").CartView;
 }): Promise<{ orderId: string } | { error: string }> {
   const res = await fetch("/api/checkout/place", {
     method: "POST",

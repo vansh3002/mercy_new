@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Receipt, Sparkles } from "lucide-react";
-import { getOrder } from "@/features/orders/store";
+import { prisma } from "@/lib/prisma";
 import { productRepository } from "@/lib/data-source";
 import { OrnateDivider } from "@/components/brand/OrnateDivider";
 import { OrderTimeline } from "@/components/OrderTimeline";
@@ -13,8 +13,49 @@ export const metadata = { title: "Order Tracking" };
 export const dynamic = "force-dynamic";
 
 export default async function OrderPage({ params }: { params: { id: string } }) {
-  const order = getOrder(params.id);
-  if (!order) notFound();
+  const dbOrder = await prisma.order.findUnique({ where: { id: params.id } });
+  if (!dbOrder) notFound();
+
+  // Map dbOrder (Prisma) -> Frontend Order interface
+  const orderLines = (dbOrder.items ?? []) as any[];
+
+  // Convert db OrderStatus string to frontend OrderStatus type
+  let status: "placed" | "tailored" | "out_for_delivery" | "delivered" = "placed";
+  if (dbOrder.orderStatus === "SHIPPED") status = "out_for_delivery";
+  else if (dbOrder.orderStatus === "DELIVERED") status = "delivered";
+  else if (dbOrder.orderStatus === "UNDER_PACKAGING") status = "tailored";
+
+  const eta = new Date(dbOrder.createdAt.getTime() + 1000 * 60 * 60 * 24 * 5);
+  const etaLabel = eta.toLocaleDateString("en-IN", {
+    weekday: "short",
+    day: "2-digit",
+    month: "short",
+  });
+
+  const order = {
+    id: dbOrder.orderNumber,
+    createdAt: dbOrder.createdAt.toISOString(),
+    status,
+    lines: orderLines,
+    address: {
+      name: dbOrder.customerName,
+      phone: dbOrder.phone,
+      line1: dbOrder.address,
+      city: dbOrder.city,
+      state: dbOrder.state,
+      pincode: dbOrder.pincode,
+    },
+    paymentMethod: dbOrder.paymentMethod as any,
+    totals: {
+      subtotal: dbOrder.subtotal,
+      discount: dbOrder.discount,
+      shipping: dbOrder.shippingCharge,
+      codFee: dbOrder.paymentMethod === "COD" ? 30 : 0,
+      total: dbOrder.finalAmount,
+      youSave: dbOrder.discount,
+    },
+    etaLabel,
+  };
 
   const createdLabel = new Date(order.createdAt).toLocaleDateString("en-IN", {
     weekday: "short",

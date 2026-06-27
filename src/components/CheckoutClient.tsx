@@ -34,9 +34,12 @@ const DEFAULT_ADDRESS = {
 
 const COD_FEE = 30;
 
-export function CheckoutClient({ cart }: { cart: CartView }) {
+export function CheckoutClient({ cart, verifiedPhone }: { cart: CartView; verifiedPhone: string }) {
   const router = useRouter();
-  const [address, setAddress] = useState(DEFAULT_ADDRESS);
+  const [address, setAddress] = useState({
+    ...DEFAULT_ADDRESS,
+    phone: verifiedPhone,  // pre-fill with verified phone, locked
+  });
   const [editing, setEditing] = useState(false);
   const [payment, setPayment] = useState<PaymentMethod>("UPI");
   const [loading, setLoading] = useState(false);
@@ -48,7 +51,7 @@ export function CheckoutClient({ cart }: { cart: CartView }) {
   async function submit() {
     setError(null);
     setLoading(true);
-    const res = await placeOrder({ address, paymentMethod: payment });
+    const res = await placeOrder({ address, paymentMethod: payment, cartSnapshot: cart });
     if ("error" in res) {
       setLoading(false);
       const friendly: Record<string, string> = {
@@ -130,8 +133,14 @@ export function CheckoutClient({ cart }: { cart: CartView }) {
               <form className="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-3 text-sm">
                 <Field label="Full name" value={address.name}
                   onChange={(v) => setAddress({ ...address, name: v })} />
-                <Field label="Phone" value={address.phone} inputMode="numeric"
-                  onChange={(v) => setAddress({ ...address, phone: v.replace(/\D/g, "").slice(0, 10) })} />
+                {/* Phone locked to OTP-verified number */}
+                <div className="flex flex-col gap-1">
+                  <span className="label text-ink-dim">Phone (verified)</span>
+                  <div className="h-11 border border-line/50 bg-bg px-3.5 rounded-md text-sm text-ink-dim flex items-center gap-2">
+                    <ShieldCheck size={14} className="text-success" />
+                    +91 {address.phone}
+                  </div>
+                </div>
                 <Field className="lg:col-span-2" label="Address line 1" value={address.line1}
                   onChange={(v) => setAddress({ ...address, line1: v })} />
                 <Field className="lg:col-span-2" label="Address line 2 (optional)" value={address.line2}

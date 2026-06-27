@@ -10,6 +10,7 @@ export interface CartItem {
 
 export interface Cart {
   id: string;
+  phone?: string;
   items: CartItem[];
   coupon?: { code: string; amount: number };
   updatedAt: string;
