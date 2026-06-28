@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 /**
- * Subtle floating help affordance — opens to reveal a quick WhatsApp prompt.
+ * Subtle floating help affordance ,opens to reveal a quick WhatsApp prompt.
  * Hidden on cart / checkout / order pages where it would distract.
  */
 export function FloatingHelp() {
@@ -41,7 +41,7 @@ export function FloatingHelp() {
             </button>
           </div>
           <p className="text-xs text-ink-dim mt-1">
-            Message us on WhatsApp — we usually reply in under 10 minutes.
+            Message us on WhatsApp ,we usually reply in under 10 minutes.
           </p>
           <Link
             href="https://wa.me/919876543210"

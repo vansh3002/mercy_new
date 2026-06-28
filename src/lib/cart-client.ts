@@ -78,11 +78,11 @@ export async function placeOrder(payload: {
   };
   paymentMethod: "UPI" | "CARD" | "COD";
   cartSnapshot?: import("@/features/cart/types").CartView;
-}): Promise<{ orderId: string } | { error: string }> {
+}): Promise<{ orderId: string } | { error: string; productTitle?: string; size?: string }> {
   const res = await fetch("/api/checkout/place", {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify(payload),
   });
-  return (await res.json()) as { orderId: string } | { error: string };
+  return (await res.json()) as { orderId: string } | { error: string; productTitle?: string; size?: string };
 }

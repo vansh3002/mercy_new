@@ -26,11 +26,11 @@ Requires **Node 20+**.
 | Path                       | Screen          |
 |----------------------------|-----------------|
 | `/`                        | Home (Lookbook hero + Shop by Mood) |
-| `/festive-edit`            | PLP — Festive Edit (alias: `/shop`) |
+| `/festive-edit`            | PLP ,Festive Edit (alias: `/shop`) |
 | `/collections/[mood]`      | Mood collections (`everyday` · `festive` · `light-wear` · `tea-time`) |
 | `/product/[slug]`          | PDP with gallery, size, sticky CTA |
 | `/cart`                    | My Bag |
-| `/checkout`                | Checkout (mock — no real gateway) |
+| `/checkout`                | Checkout (mock ,no real gateway) |
 | `/orders/[id]`             | Order tracking |
 
 ## End-to-end mock journey
@@ -40,7 +40,7 @@ Requires **Node 20+**.
 3. Open any product → choose size → **Add to bag** or **Buy now**.
 4. Review `/cart`, optionally apply coupon `WOMANIA100` (₹100 off).
 5. Continue to `/checkout`, pick a payment method (UPI/Card/COD).
-6. Submit — you land on `/orders/WN-####` with the order timeline.
+6. Submit ,you land on `/orders/WN-####` with the order timeline.
 
 ## Stack
 
@@ -62,8 +62,8 @@ When you flip `DATA_SOURCE=db`, every product call throws by design until you wi
 
 ## Brand assets
 
-- Logo: `public/brand/womania-logo.jpg` — rendered as an image in the header, never as text.
-- Real product photos: `public/products/grid/{slug}.{ext}` — see `public/products/README.md`.
+- Logo: `public/brand/womania-logo.jpg` ,rendered as an image in the header, never as text.
+- Real product photos: `public/products/grid/{slug}.{ext}` ,see `public/products/README.md`.
 
 ## Constraints
 

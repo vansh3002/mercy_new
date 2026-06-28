@@ -1,33 +1,17 @@
-"use client";
+/**
+ * Wishlist is now fully DB-backed via WishlistContext.
+ * All reads/writes go through /api/customer/wishlist (requires wm_phone cookie).
+ * This file is kept as a stub so old imports don't break during transition.
+ */
 
-const KEY = "wm_wishlist";
+/** @deprecated Use useWishlist() from WishlistContext instead */
+export function getWishlist(): string[] { return []; }
 
-/** Read current wishlist IDs from localStorage. */
-export function getWishlist(): string[] {
-  if (typeof window === "undefined") return [];
-  try {
-    return JSON.parse(localStorage.getItem(KEY) ?? "[]") as string[];
-  } catch {
-    return [];
-  }
-}
+/** @deprecated Use useWishlist() from WishlistContext instead */
+export function isWishlisted(_productId: string): boolean { return false; }
 
-/** Returns true if the product id is wishlisted. */
-export function isWishlisted(productId: string): boolean {
-  return getWishlist().includes(productId);
-}
+/** @deprecated Use useWishlist().toggle() from WishlistContext instead */
+export function toggleWishlist(_productId: string): boolean { return false; }
 
-/** Toggle a product in the wishlist. Returns the new wishlisted state. */
-export function toggleWishlist(productId: string): boolean {
-  const current = getWishlist();
-  let next: string[];
-  if (current.includes(productId)) {
-    next = current.filter((id) => id !== productId);
-  } else {
-    next = [...current, productId];
-  }
-  localStorage.setItem(KEY, JSON.stringify(next));
-  // Dispatch a custom event so other components can react
-  window.dispatchEvent(new CustomEvent("wm:wishlist", { detail: next }));
-  return next.includes(productId);
-}
+/** @deprecated No longer used ,wishlist is DB-backed */
+export function mergeWishlistFromDB(_dbIds: string[]): void {}

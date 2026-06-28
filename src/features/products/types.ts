@@ -23,7 +23,7 @@ export interface Product {
   mrp: number;
   discountPct: number;
   tag?: string;
-  /** Short marketing line — 1 sentence, editorial voice. */
+  /** Short marketing line ,1 sentence, editorial voice. */
   story?: string;
   /** Optional fabric label, used by PDP and cards. */
   fabric?: string;

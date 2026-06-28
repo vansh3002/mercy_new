@@ -50,7 +50,7 @@ export function CinematicHero({
   }, [slides.length]);
 
   return (
-    <section className="relative isolate overflow-hidden bg-bg" aria-label="Womaniya — featured lookbook">
+    <section className="relative isolate overflow-hidden bg-bg" aria-label="Womaniya ,featured lookbook">
       <div className="relative aspect-[4/5] sm:aspect-[16/11] lg:aspect-[21/10] w-full">
         {slides.map((s, i) => {
           const inner = (

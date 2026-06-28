@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { Home, PackageSearch, ShoppingBag, Receipt, Heart } from "lucide-react";
 import { useEffect, useState } from "react";
 import { fetchCart } from "@/lib/cart-client";
-import { getWishlist } from "@/lib/wishlist-store";
+import { useWishlist } from "@/context/WishlistContext";
 
 const ITEMS = [
   { href: "/", label: "Home", icon: Home, match: (p: string) => p === "/" },
@@ -44,7 +44,7 @@ const ITEMS = [
 export function BottomNav() {
   const pathname = usePathname();
   const [count, setCount] = useState(0);
-  const [wishlistCount, setWishlistCount] = useState(0);
+  const { count: wishlistCount } = useWishlist();
 
   useEffect(() => {
     let cancelled = false;
@@ -68,14 +68,6 @@ export function BottomNav() {
     };
   }, [pathname]);
 
-  useEffect(() => {
-    function syncWishlist() {
-      setWishlistCount(getWishlist().length);
-    }
-    syncWishlist();
-    window.addEventListener("wm:wishlist", syncWishlist);
-    return () => window.removeEventListener("wm:wishlist", syncWishlist);
-  }, []);
 
   return (
     <nav

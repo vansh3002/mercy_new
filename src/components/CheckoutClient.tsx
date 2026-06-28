@@ -2,15 +2,18 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect, useCallback } from "react";
 import {
   ArrowLeft,
   ChevronRight,
-  CreditCard,
   Pencil,
   ShieldCheck,
   Smartphone,
   Truck,
+  LocateFixed,
+  Loader2,
+  PackageX,
+  Bell,
 } from "lucide-react";
 import type { CartView } from "@/features/cart/types";
 import type { PaymentMethod } from "@/features/checkout/types";
@@ -19,55 +22,273 @@ import { OrnateDivider } from "./brand/OrnateDivider";
 import { CheckoutStepper } from "./CheckoutStepper";
 import { OrderSummaryBox } from "./OrderSummaryBox";
 import { SafeImage } from "./SafeImage";
-import { placeOrder } from "@/lib/cart-client";
+import { placeOrder, removeCartItem } from "@/lib/cart-client";
 
 const DEFAULT_ADDRESS = {
-  name: "Aanya Sharma",
-  phone: "9876543210",
-  line1: "12 Lotus Lane, Civil Lines",
+  name: "",
+  phone: "",
+  line1: "",
   line2: "",
-  city: "Jaipur",
-  state: "Rajasthan",
-  pincode: "302006",
+  city: "",
+  state: "",
+  pincode: "",
   tag: "HOME" as const,
 };
 
-const COD_FEE = 30;
+// Loads the Razorpay checkout.js script on demand
+function loadRazorpayScript(): Promise<void> {
+  return new Promise((resolve, reject) => {
+    if ((window as any).Razorpay) { resolve(); return; }
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error("Failed to load Razorpay SDK"));
+    document.body.appendChild(script);
+  });
+}
+
+// Reverse geocode via our own server-side proxy (avoids browser CORS + User-Agent issues)
+async function reverseGeocode(lat: number, lon: number) {
+  const res = await fetch(`/api/location/reverse?lat=${lat}&lon=${lon}`);
+  if (!res.ok) return null;
+  const data = await res.json() as {
+    success: boolean;
+    address?: { street: string; city: string; state: string; pincode: string };
+  };
+  return data.success ? data.address : null;
+}
 
 export function CheckoutClient({ cart, verifiedPhone }: { cart: CartView; verifiedPhone: string }) {
   const router = useRouter();
   const [address, setAddress] = useState({
     ...DEFAULT_ADDRESS,
-    phone: verifiedPhone,  // pre-fill with verified phone, locked
+    phone: verifiedPhone,
   });
-  const [editing, setEditing] = useState(false);
-  const [payment, setPayment] = useState<PaymentMethod>("UPI");
+  const [editing, setEditing] = useState(true); // start in edit mode so user fills address
+  const [payment, setPayment] = useState<PaymentMethod>("RAZORPAY");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [outOfStock, setOutOfStock] = useState<{
+    productTitle: string;
+    size: string;
+    image: string | null;
+    cartLineId: string | null;
+  } | null>(null);
+  const [requestSent, setRequestSent] = useState(false);
+  const [requesting, setRequesting] = useState(false);
+  const [proceeding, setProceeding] = useState(false);
+  const [locating, setLocating] = useState(false);
+  const [locationStatus, setLocationStatus] = useState<"idle" | "granted" | "denied">("idle");
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
-  const codFee = payment === "COD" ? COD_FEE : 0;
-  const finalTotal = useMemo(() => cart.totals.total + codFee, [cart.totals.total, codFee]);
+  const detectLocation = useCallback(async () => {
+    if (!navigator.geolocation) return;
+    setLocating(true);
+    setLocationStatus("idle");
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        try {
+          const a = await reverseGeocode(pos.coords.latitude, pos.coords.longitude);
+          if (!a) return;
+          setAddress((prev) => ({
+            ...prev,
+            // Line 1 stays empty ,user fills house/flat number themselves
+            // Line 2 gets the street/area from location
+            line2: a.street || prev.line2,
+            city: a.city || prev.city,
+            state: a.state || prev.state,
+            pincode: a.pincode || prev.pincode,
+          }));
+          setLocationStatus("granted");
+        } finally {
+          setLocating(false);
+        }
+      },
+      () => {
+        setLocating(false);
+        setLocationStatus("denied");
+      },
+      { timeout: 10000 }
+    );
+  }, []);
+
+  // Auto-request location when checkout page mounts
+  useEffect(() => { detectLocation(); }, [detectLocation]);
+
+  function saveAddress() {
+    const required: Array<{ key: keyof typeof address; label: string }> = [
+      { key: "name",    label: "Full name is required" },
+      { key: "line1",   label: "Address line 1 is required" },
+      { key: "city",    label: "City is required" },
+      { key: "state",   label: "State is required" },
+      { key: "pincode", label: "Pincode is required" },
+    ];
+    const errors: Record<string, string> = {};
+    for (const { key, label } of required) {
+      if (!address[key]?.toString().trim()) errors[key] = label;
+    }
+    if (address.pincode && !/^\d{6}$/.test(address.pincode)) {
+      errors.pincode = "Enter a valid 6-digit pincode";
+    }
+    setFieldErrors(errors);
+    if (Object.keys(errors).length === 0) setEditing(false);
+  }
+
+  const codFee = 0;
+
+  // When an item is out of stock, compute adjusted totals that exclude it
+  const adjustedTotals = useMemo(() => {
+    if (!outOfStock?.cartLineId) return cart.totals;
+    const line = cart.lines.find((l) => l.id === outOfStock.cartLineId);
+    if (!line) return cart.totals;
+    const deduct = line.price * line.qty;
+    return {
+      ...cart.totals,
+      subtotal: Math.max(0, cart.totals.subtotal - deduct),
+      total: Math.max(0, cart.totals.total - deduct),
+    };
+  }, [outOfStock, cart.totals, cart.lines]);
+
+  const finalTotal = useMemo(() => adjustedTotals.total + codFee, [adjustedTotals.total, codFee]);
+
+  function handleOutOfStockError(productTitle?: string, size?: string) {
+    const matchingLine = cart.lines.find(
+      (l) => l.title === productTitle && l.size === size
+    );
+    setOutOfStock({
+      productTitle: productTitle ?? "",
+      size: size ?? "",
+      image: matchingLine?.image ?? null,
+      cartLineId: matchingLine?.id ?? null,
+    });
+  }
 
   async function submit() {
     setError(null);
     setLoading(true);
-    const res = await placeOrder({ address, paymentMethod: payment, cartSnapshot: cart });
-    if ("error" in res) {
-      setLoading(false);
-      const friendly: Record<string, string> = {
-        invalid_pincode: "Please enter a valid 6-digit pincode.",
-        invalid_phone: "Please enter a valid 10-digit mobile number.",
-        empty_cart: "Your bag is empty.",
-      };
-      setError(friendly[res.error] ?? "Could not place order. Please check your details.");
-      return;
+
+    // Silently remove out-of-stock item before paying
+    if (outOfStock?.cartLineId) {
+      await removeCartItem(outOfStock.cartLineId);
+      setOutOfStock(null);
+      setRequestSent(false);
     }
-    // Persist order ID to localStorage so the orders page can list it
+
+    // Razorpay online payment flow
     try {
-      const existing = JSON.parse(localStorage.getItem("wm_order_ids") ?? "[]") as string[];
-      localStorage.setItem("wm_order_ids", JSON.stringify([res.orderId, ...existing]));
-    } catch {}
-    router.push(`/orders/${res.orderId}`);
+      // 1. Pre-flight stock check before opening payment modal
+      const stockRes = await fetch("/api/checkout/check-stock", { method: "POST" });
+      const stockData = await stockRes.json();
+      if (!stockData.success) {
+        if (stockData.error === "insufficient_stock") {
+          handleOutOfStockError(stockData.productTitle, stockData.size);
+        } else {
+          setError("Could not verify stock. Please try again.");
+        }
+        setLoading(false);
+        return;
+      }
+
+      // 2. Load Razorpay SDK
+      await loadRazorpayScript();
+
+      // 2. Create Razorpay order on backend
+      const createRes = await fetch("/api/razorpay/create-order", { method: "POST" });
+      const createData = await createRes.json();
+      if (!createData.success) {
+        setError(createData.error ?? "Failed to initiate payment");
+        setLoading(false);
+        return;
+      }
+
+      // 3. Open Razorpay modal
+      const options = {
+        key: createData.keyId,
+        amount: createData.amount,
+        currency: createData.currency,
+        order_id: createData.rzpOrderId,
+        name: "Womaniya",
+        description: "Fashion by Mercy",
+        image: "/brand/womania-logo.jpg",
+        prefill: {
+          name: address.name,
+          contact: `+91${address.phone}`,
+        },
+        theme: { color: "#8B1A2F" },
+        modal: {
+          ondismiss: () => {
+            setLoading(false);
+          },
+        },
+        handler: async (response: {
+          razorpay_order_id: string;
+          razorpay_payment_id: string;
+          razorpay_signature: string;
+        }) => {
+          try {
+            // 4. Verify signature + place DB order
+            const verifyRes = await fetch("/api/razorpay/verify", {
+              method: "POST",
+              headers: { "content-type": "application/json" },
+              body: JSON.stringify({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+                address,
+              }),
+            });
+            const verifyData = await verifyRes.json();
+            if (verifyData.success && verifyData.orderId) {
+              router.push(`/orders/${verifyData.orderId}`);
+            } else if (verifyData.error === "insufficient_stock") {
+              handleOutOfStockError(verifyData.productTitle, verifyData.size);
+              setLoading(false);
+            } else {
+              setError("Payment succeeded but order creation failed. Please contact support.");
+              setLoading(false);
+            }
+          } catch (err) {
+            console.error("[razorpay handler]", err);
+            setError("Payment succeeded but we couldn't confirm your order. Please contact support with your payment ID.");
+            setLoading(false);
+          }
+        },
+      };
+
+      const rzp = new (window as any).Razorpay(options);
+      rzp.on("payment.failed", (response: any) => {
+        setError(`Payment failed: ${response.error.description}`);
+        setLoading(false);
+      });
+      rzp.open();
+    } catch (err) {
+      console.error("[submit]", err);
+      setError("Something went wrong. Please try again.");
+      setLoading(false);
+    }
+  }
+
+  async function requestRestock() {
+    if (!outOfStock) return;
+    setRequesting(true);
+    await fetch("/api/track/restock-request", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ productTitle: outOfStock.productTitle, size: outOfStock.size }),
+    });
+    setRequesting(false);
+    setRequestSent(true);
+  }
+
+  async function proceedWithoutItem() {
+    if (!outOfStock?.cartLineId) return;
+    setProceeding(true);
+    await removeCartItem(outOfStock.cartLineId);
+    setOutOfStock(null);
+    setRequestSent(false);
+    setProceeding(false);
+    // Refresh server component so cart prop reflects the removed item
+    router.refresh();
   }
 
   if (cart.lines.length === 0) {
@@ -102,14 +323,16 @@ export function CheckoutClient({ cart, verifiedPhone }: { cart: CartView; verifi
           <section className="bg-surface border border-line/60 rounded-[2px] p-4 lg:p-6 shadow-card">
             <div className="flex items-center justify-between">
               <p className="label text-wine/80">Delivery Address</p>
-              <button
-                type="button"
-                onClick={() => setEditing((v) => !v)}
-                className="label text-wine inline-flex items-center gap-1 hover:underline"
-                aria-label="Edit address"
-              >
-                <Pencil size={12} aria-hidden="true" /> Edit
-              </button>
+              {!editing && (
+                <button
+                  type="button"
+                  onClick={() => setEditing(true)}
+                  className="label text-wine inline-flex items-center gap-1 hover:underline"
+                  aria-label="Edit address"
+                >
+                  <Pencil size={12} aria-hidden="true" /> Edit
+                </button>
+              )}
             </div>
             {!editing ? (
               <div className="mt-4 flex flex-col gap-0.5 text-sm text-ink">
@@ -131,8 +354,30 @@ export function CheckoutClient({ cart, verifiedPhone }: { cart: CartView; verifi
               </div>
             ) : (
               <form className="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-3 text-sm">
-                <Field label="Full name" value={address.name}
-                  onChange={(v) => setAddress({ ...address, name: v })} />
+                {/* Location detect button */}
+                <div className="lg:col-span-2">
+                  <button
+                    type="button"
+                    onClick={detectLocation}
+                    disabled={locating}
+                    className="inline-flex items-center gap-2 h-9 px-4 rounded-full border border-wine text-wine text-xs font-semibold hover:bg-wine/5 transition-colors disabled:opacity-50"
+                  >
+                    {locating
+                      ? <><Loader2 size={13} className="animate-spin" /> Detecting…</>
+                      : <><LocateFixed size={13} /> Use my location</>
+                    }
+                  </button>
+                  {locationStatus === "granted" && (
+                    <p className="text-xs text-success mt-1.5">Location fetched ✓</p>
+                  )}
+                  {locationStatus === "denied" && (
+                    <p className="text-xs text-sale mt-1.5">Location denied ,fill address manually.</p>
+                  )}
+                </div>
+
+                <Field label="Full name *" value={address.name}
+                  error={fieldErrors.name}
+                  onChange={(v) => { setAddress({ ...address, name: v }); setFieldErrors((e) => ({ ...e, name: "" })); }} />
                 {/* Phone locked to OTP-verified number */}
                 <div className="flex flex-col gap-1">
                   <span className="label text-ink-dim">Phone (verified)</span>
@@ -141,20 +386,24 @@ export function CheckoutClient({ cart, verifiedPhone }: { cart: CartView; verifi
                     +91 {address.phone}
                   </div>
                 </div>
-                <Field className="lg:col-span-2" label="Address line 1" value={address.line1}
-                  onChange={(v) => setAddress({ ...address, line1: v })} />
-                <Field className="lg:col-span-2" label="Address line 2 (optional)" value={address.line2}
+                <Field className="lg:col-span-2" label="House / Flat / Building *" value={address.line1}
+                  error={fieldErrors.line1} placeholder="e.g. Flat 4B, Sunshine Apartments, MG Road"
+                  onChange={(v) => { setAddress({ ...address, line1: v }); setFieldErrors((e) => ({ ...e, line1: "" })); }} />
+                <Field className="lg:col-span-2" label="Area / Landmark (optional)" value={address.line2}
                   onChange={(v) => setAddress({ ...address, line2: v })} />
-                <Field label="City" value={address.city}
-                  onChange={(v) => setAddress({ ...address, city: v })} />
-                <Field label="State" value={address.state}
-                  onChange={(v) => setAddress({ ...address, state: v })} />
-                <Field label="Pincode" value={address.pincode} inputMode="numeric"
-                  onChange={(v) => setAddress({ ...address, pincode: v.replace(/\D/g, "").slice(0, 6) })} />
+                <Field label="City *" value={address.city}
+                  error={fieldErrors.city}
+                  onChange={(v) => { setAddress({ ...address, city: v }); setFieldErrors((e) => ({ ...e, city: "" })); }} />
+                <Field label="State *" value={address.state}
+                  error={fieldErrors.state}
+                  onChange={(v) => { setAddress({ ...address, state: v }); setFieldErrors((e) => ({ ...e, state: "" })); }} />
+                <Field label="Pincode *" value={address.pincode} inputMode="numeric"
+                  error={fieldErrors.pincode}
+                  onChange={(v) => { setAddress({ ...address, pincode: v.replace(/\D/g, "").slice(0, 6) }); setFieldErrors((e) => ({ ...e, pincode: "" })); }} />
                 <div className="lg:col-span-2 flex justify-end">
                   <button
                     type="button"
-                    onClick={() => setEditing(false)}
+                    onClick={saveAddress}
                     className="btn-wine !h-11"
                   >
                     Save address
@@ -195,48 +444,130 @@ export function CheckoutClient({ cart, verifiedPhone }: { cart: CartView; verifi
           </Link>
 
           <section className="bg-surface border border-line/60 rounded-[2px] p-4 lg:p-6 shadow-card">
-            <p className="label text-wine/80 mb-3">Payment Method</p>
-            <div className="flex flex-col gap-2.5">
-              <PayOption
-                value="UPI"
-                active={payment === "UPI"}
-                onSelect={setPayment}
-                icon={<Smartphone size={18} strokeWidth={1.5} />}
-                label="UPI"
-                sub="Google Pay · PhonePe · Paytm"
-              />
+            <p className="label text-wine/80 mb-3">Payment</p>
+            <div className="flex items-center gap-3 p-3 lg:p-4 border border-wine bg-wine-soft/40 rounded-[2px] shadow-glow">
+              <Smartphone size={18} strokeWidth={1.5} className="text-wine shrink-0" />
+              <span>
+                <span className="block text-sm text-ink font-semibold">Pay Online</span>
+                <span className="block text-xs text-ink-dim">GPay, PhonePe, Paytm &amp; all UPI apps</span>
+              </span>
             </div>
           </section>
 
           {error && (
             <p role="alert" className="text-sm text-sale">{error}</p>
           )}
+
+          {/* Out of stock card */}
+          {outOfStock && (
+            <section className="bg-surface border border-sale/30 rounded-[2px] overflow-hidden shadow-card">
+              {/* Red header strip */}
+              <div className="bg-sale/10 px-4 py-2.5 flex items-center gap-2 border-b border-sale/20">
+                <PackageX size={15} className="text-sale shrink-0" />
+                <p className="label text-sale">Out of Stock</p>
+              </div>
+
+              <div className="p-4 flex gap-4">
+                {/* Product image */}
+                {outOfStock.image && (
+                  <div className="w-20 h-24 shrink-0 rounded-sm overflow-hidden bg-surface-2 border border-line/40">
+                    <SafeImage
+                      src={outOfStock.image}
+                      alt={outOfStock.productTitle}
+                      title={outOfStock.productTitle}
+                      width={80}
+                      height={96}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
+
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm text-ink font-semibold leading-snug">
+                    {outOfStock.productTitle}
+                  </p>
+                  <p className="text-xs text-ink-dim mt-0.5">Size: {outOfStock.size}</p>
+                  <p className="text-sm text-ink-dim mt-2 leading-relaxed">
+                    This item isn't available in your size right now.
+                  </p>
+
+                  <div className="flex flex-wrap gap-2 mt-3">
+                    {/* Request button */}
+                    {!requestSent ? (
+                      <button
+                        type="button"
+                        onClick={requestRestock}
+                        disabled={requesting || proceeding}
+                        className="inline-flex items-center gap-1.5 h-8 px-3 rounded-full border border-wine text-wine text-xs font-semibold hover:bg-wine/5 transition-colors disabled:opacity-50"
+                      >
+                        {requesting
+                          ? <><Loader2 size={12} className="animate-spin" /> Sending…</>
+                          : <><Bell size={12} /> Request this item</>
+                        }
+                      </button>
+                    ) : (
+                      <span className="inline-flex items-center gap-1.5 h-8 px-3 text-xs text-success font-semibold">
+                        <ShieldCheck size={12} /> Requested ✓
+                      </span>
+                    )}
+
+                    {/* Remove from bag ,clears out-of-stock state so user can place order for rest */}
+                    {outOfStock.cartLineId && (
+                      <button
+                        type="button"
+                        onClick={proceedWithoutItem}
+                        disabled={proceeding || requesting}
+                        className="inline-flex items-center gap-1.5 h-8 px-3 rounded-full bg-sale/10 text-sale text-xs font-semibold hover:bg-sale/20 transition-colors disabled:opacity-50"
+                      >
+                        {proceeding
+                          ? <><Loader2 size={12} className="animate-spin" /> Removing…</>
+                          : "Remove from bag"
+                        }
+                      </button>
+                    )}
+                  </div>
+                  <p className="text-[11px] text-ink-faint mt-2">
+                    Remove this item to place your order for the remaining products.
+                  </p>
+                </div>
+              </div>
+            </section>
+          )}
         </div>
 
         <aside className="mt-8 lg:mt-0 lg:sticky lg:top-44 flex flex-col gap-4">
           <OrderSummaryBox
-            subtotal={cart.totals.subtotal}
-            discount={cart.totals.discount}
-            shipping={cart.totals.shipping}
+            subtotal={adjustedTotals.subtotal}
+            discount={adjustedTotals.discount}
+            shipping={adjustedTotals.shipping}
             codFee={codFee}
             total={finalTotal}
+            lines={cart.lines}
+            outOfStockLineId={outOfStock?.cartLineId ?? null}
           />
           <button
             type="button"
             onClick={submit}
-            disabled={loading || editing}
-            className="btn-wine w-full"
+            disabled={loading || editing || proceeding}
+            className="btn-wine w-full disabled:opacity-50"
             style={{ height: "52px" }}
           >
-            {loading ? "Placing order…" : `Place Order · ${rupees(finalTotal)}`}
+            {loading
+              ? (payment === "RAZORPAY" ? "Opening payment…" : "Placing order…")
+              : outOfStock
+                ? `Place Order (skip out-of-stock) · ${rupees(finalTotal)}`
+                : payment === "RAZORPAY"
+                  ? `Pay ${rupees(finalTotal)} Securely`
+                  : `Place Order · ${rupees(finalTotal)}`
+            }
           </button>
           <div className="flex items-center justify-center gap-2 text-xs text-ink-dim">
             <ShieldCheck size={14} className="text-success" aria-hidden="true" />
-            100% secure checkout · UPI · COD
+            Secured by Razorpay · 256-bit encryption
           </div>
           <p className="text-[11px] text-ink-faint text-center leading-relaxed">
             By placing this order you agree to Womaniya's policies, terms of service
-            and 7-day return policy.
+            and 1-day return policy.
           </p>
         </aside>
       </div>
@@ -250,24 +581,34 @@ function Field({
   onChange,
   className = "",
   inputMode,
+  error,
+  placeholder,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
   className?: string;
   inputMode?: React.InputHTMLAttributes<HTMLInputElement>["inputMode"];
+  error?: string;
+  placeholder?: string;
 }) {
   return (
-    <label className={`flex flex-col gap-1 ${className}`}>
+    <div className={`flex flex-col gap-1 ${className}`}>
       <span className="label text-ink-dim">{label}</span>
       <input
         type="text"
         value={value}
         inputMode={inputMode}
+        placeholder={placeholder}
         onChange={(e) => onChange(e.target.value)}
-        className="h-11 border border-line bg-surface px-3.5 rounded-md text-sm text-ink focus:outline-none focus-visible:border-wine focus-visible:shadow-glow transition-all"
+        className={`h-11 border bg-surface px-3.5 rounded-md text-sm text-ink focus:outline-none transition-all ${
+          error
+            ? "border-sale focus-visible:border-sale focus-visible:shadow-none"
+            : "border-line focus-visible:border-wine focus-visible:shadow-glow"
+        }`}
       />
-    </label>
+      {error && <p className="text-xs text-sale mt-0.5">{error}</p>}
+    </div>
   );
 }
 

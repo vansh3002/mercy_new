@@ -1,12 +1,13 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
-import { ArrowLeft, Receipt, Sparkles } from "lucide-react";
+import { notFound, redirect } from "next/navigation";
+import { cookies } from "next/headers";
+import { ArrowLeft } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { productRepository } from "@/lib/data-source";
-import { OrnateDivider } from "@/components/brand/OrnateDivider";
 import { OrderTimeline } from "@/components/OrderTimeline";
 import { OrderSummaryBox } from "@/components/OrderSummaryBox";
-import { SafeImage } from "@/components/SafeImage";
+import { OrderItemsAccordion } from "@/components/OrderItemsAccordion";
+import { NeedHelpButton } from "@/components/NeedHelpButton";
 import { RelatedRail } from "@/components/home/RelatedRail";
 
 export const metadata = { title: "Order Tracking" };
@@ -16,14 +17,23 @@ export default async function OrderPage({ params }: { params: { id: string } }) 
   const dbOrder = await prisma.order.findUnique({ where: { id: params.id } });
   if (!dbOrder) notFound();
 
+  // IDOR protection: only allow the customer whose phone matches the order
+  const cookieStore = cookies();
+  const phoneRaw = cookieStore.get("wm_phone")?.value ?? "";
+  const phone = phoneRaw.replace(/\D/g, "");
+  if (!phone || phone !== (dbOrder.phone ?? "").replace(/\D/g, "")) {
+    redirect("/orders");
+  }
+
   // Map dbOrder (Prisma) -> Frontend Order interface
   const orderLines = (dbOrder.items ?? []) as any[];
 
   // Convert db OrderStatus string to frontend OrderStatus type
-  let status: "placed" | "tailored" | "out_for_delivery" | "delivered" = "placed";
+  let status: "placed" | "tailored" | "out_for_delivery" | "delivered" | "cancelled" = "placed";
   if (dbOrder.orderStatus === "SHIPPED") status = "out_for_delivery";
   else if (dbOrder.orderStatus === "DELIVERED") status = "delivered";
   else if (dbOrder.orderStatus === "UNDER_PACKAGING") status = "tailored";
+  else if (dbOrder.orderStatus === "CANCELLED") status = "cancelled";
 
   const eta = new Date(dbOrder.createdAt.getTime() + 1000 * 60 * 60 * 24 * 5);
   const etaLabel = eta.toLocaleDateString("en-IN", {
@@ -41,6 +51,7 @@ export default async function OrderPage({ params }: { params: { id: string } }) 
       name: dbOrder.customerName,
       phone: dbOrder.phone,
       line1: dbOrder.address,
+      line2: "" as string, // Placeholder as dbOrder.address contains the combined address
       city: dbOrder.city,
       state: dbOrder.state,
       pincode: dbOrder.pincode,
@@ -57,11 +68,6 @@ export default async function OrderPage({ params }: { params: { id: string } }) 
     etaLabel,
   };
 
-  const createdLabel = new Date(order.createdAt).toLocaleDateString("en-IN", {
-    weekday: "short",
-    day: "2-digit",
-    month: "short",
-  });
   const hero = order.lines[0];
 
   const repo = productRepository();
@@ -72,58 +78,20 @@ export default async function OrderPage({ params }: { params: { id: string } }) 
 
   return (
     <div className="container-editorial py-4 lg:py-12">
-      <div className="flex items-center justify-center relative mb-3">
+      <div className="flex items-center relative mb-6">
         <Link
           href="/"
           aria-label="Back"
-          className="absolute left-0 p-2 -ml-2 text-ink hover:text-wine transition-colors"
+          className="p-2 -ml-2 text-ink hover:text-wine transition-colors"
         >
           <ArrowLeft size={20} strokeWidth={1.5} />
         </Link>
-        <div className="text-center">
-          <span className="label text-wine/80 inline-flex items-center gap-1.5">
-            <Sparkles size={12} className="text-gold" aria-hidden="true" />
-            Order placed
-          </span>
-          <p className="serif text-2xl lg:text-3xl text-ink mt-1">{order.id}</p>
-          <p className="text-xs text-ink-dim mt-1">Confirmed {createdLabel}</p>
-        </div>
       </div>
-      <OrnateDivider className="mt-2 mb-8" width="md" />
 
       <div className="lg:grid lg:grid-cols-[1.1fr_1fr] lg:gap-12 lg:items-start">
         <div className="flex flex-col gap-6">
-          {hero && (
-            <article className="flex gap-4 bg-surface border border-line/60 rounded-[2px] p-4 lg:p-5 shadow-card">
-              <div className="relative w-[100px] h-[120px] flex-shrink-0 bg-surface-2 overflow-hidden rounded-[2px]">
-                <SafeImage
-                  src={hero.image}
-                  alt={hero.title}
-                  title={hero.title}
-                  fill
-                  sizes="100px"
-                  className="object-cover"
-                  fallbackClassName="absolute inset-0 w-full h-full"
-                />
-              </div>
-              <div className="flex-1 min-w-0 flex flex-col">
-                <p className="label-sm text-wine/80">Headlining your order</p>
-                <h2 className="serif text-xl lg:text-2xl text-ink leading-tight mt-1 line-clamp-2">
-                  {hero.title}
-                </h2>
-                <p className="text-xs text-ink-dim mt-1.5">
-                  {order.lines.length > 1 ? `+ ${order.lines.length - 1} more · ` : ""}
-                  ETA {order.etaLabel}
-                </p>
-                <button
-                  type="button"
-                  className="mt-auto label text-wine inline-flex items-center gap-1.5 hover:underline self-start"
-                  aria-label="View invoice"
-                >
-                  <Receipt size={14} aria-hidden="true" /> View Invoice
-                </button>
-              </div>
-            </article>
+          {order.lines.length > 0 && (
+            <OrderItemsAccordion lines={order.lines} etaLabel={order.etaLabel} />
           )}
 
           <section className="bg-surface border border-line/60 rounded-[2px] p-5 lg:p-6 shadow-card">
@@ -152,14 +120,25 @@ export default async function OrderPage({ params }: { params: { id: string } }) 
             shipping={order.totals.shipping}
             codFee={order.totals.codFee}
             total={order.totals.total}
+            lines={order.lines}
           />
 
           <p className="text-xs text-ink-dim text-center">
-            Paid via {order.paymentMethod === "COD" ? "Cash on Delivery" : order.paymentMethod}.
+            {order.paymentMethod === "COD"
+              ? "Paid via Cash on Delivery"
+              : order.paymentMethod === "RAZORPAY"
+              ? "Paid online via UPI / Card / Net Banking"
+              : `Paid via ${order.paymentMethod}`}
           </p>
 
-          <Link href="/festive-edit" className="btn-wine w-full" style={{ height: "48px" }}>
-            Keep shopping the Festive Edit
+          <NeedHelpButton
+            orderNumber={order.id}
+            phone={dbOrder.phone}
+            customerName={dbOrder.customerName}
+          />
+
+          <Link href="/explore" className="btn-wine w-full" style={{ height: "48px" }}>
+            Keep shopping Mercy's Collection
           </Link>
         </aside>
       </div>
@@ -167,7 +146,7 @@ export default async function OrderPage({ params }: { params: { id: string } }) 
       {recs.length > 0 && (
         <RelatedRail
           eyebrow="While you wait"
-          title="More from the boutique"
+          title="More from Mercy's Collection"
           href="/festive-edit"
           hrefLabel="View all"
           products={recs}

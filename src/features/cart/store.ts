@@ -19,7 +19,7 @@ function rowToCart(row: {
   couponAmt: number | null;
   updatedAt: Date;
 }): Cart {
-  // Prisma returns JSON columns as `unknown` — ensure we always get a safe array
+  // Prisma returns JSON columns as `unknown` ,ensure we always get a safe array
   const rawItems = row.items;
   const items: CartItem[] = Array.isArray(rawItems) ? (rawItems as CartItem[]) : [];
   return {
@@ -139,7 +139,7 @@ export async function clearCart(cartId: string): Promise<void> {
   });
 }
 
-/** Link an anonymous cart to a phone number after OTP verification */
+/** Link an anonymous cart to a phone number after verification */
 export async function linkCartToPhone(
   cartId: string,
   phone: string,
@@ -147,5 +147,41 @@ export async function linkCartToPhone(
   await prisma.cart.update({
     where: { id: cartId },
     data: { phone },
+  });
+}
+
+/**
+ * On a new device: find any existing cart for this phone, merge its items into
+ * the current cart, then link the current cart to the phone.
+ */
+export async function mergeCartFromPhone(
+  currentCartId: string,
+  phone: string,
+): Promise<void> {
+  const existingRow = await prisma.cart.findFirst({
+    where: { phone, NOT: { id: currentCartId } },
+    orderBy: { updatedAt: "desc" },
+  });
+
+  const currentCart = await getOrCreateCart(currentCartId);
+  const merged = [...currentCart.items];
+
+  if (existingRow && Array.isArray(existingRow.items)) {
+    const oldItems = existingRow.items as CartItem[];
+    for (const item of oldItems) {
+      const match = merged.find(
+        (i) => i.productId === item.productId && i.size === item.size,
+      );
+      if (match) {
+        match.qty = Math.min(10, match.qty + item.qty);
+      } else {
+        merged.push(item);
+      }
+    }
+  }
+
+  await prisma.cart.update({
+    where: { id: currentCartId },
+    data: { items: merged as unknown[], phone },
   });
 }

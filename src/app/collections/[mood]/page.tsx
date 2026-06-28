@@ -18,19 +18,19 @@ const MOOD_LABELS: Record<Mood, { label: string; script: string; title: string; 
     label: "Festive",
     script: "in bloom",
     title: "Festive in Bloom.",
-    sub: "Hand-finished sets, statement chikan, aari florals — for the evenings to remember.",
+    sub: "Hand-finished sets, statement chikan, aari florals ,for the evenings to remember.",
   },
   "light-wear": {
     label: "Light Wear",
     script: "barely there",
     title: "Featherweight, all summer.",
-    sub: "Pastel tunics in the softest mul cottons — designed to almost not be there.",
+    sub: "Pastel tunics in the softest mul cottons ,designed to almost not be there.",
   },
   "tea-time": {
     label: "Tea Time",
     script: "verandah hour",
     title: "The verandah collection.",
-    sub: "Short dresses, bell sleeves, breezy florals — sunlit afternoons in a wardrobe.",
+    sub: "Short dresses, bell sleeves, breezy florals ,sunlit afternoons in a wardrobe.",
   },
 };
 

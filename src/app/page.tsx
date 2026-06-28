@@ -85,7 +85,7 @@ export default async function HomePage() {
   const bestsellers = [...all].sort((a, b) => b.popularity - a.popularity).slice(0, 8);
 
   const colorStories = [
-    { label: "Ivory & White", swatch: "#F4ECDF", caption: "Heirloom calm — for weddings and Sundays alike",
+    { label: "Ivory & White", swatch: "#F4ECDF", caption: "Heirloom calm ,for weddings and Sundays alike",
       product: all.find((p) => p.slug === "ivory-chikan-palace-set") ?? all[0] },
     { label: "Royal Blue", swatch: "#2C4FB8", caption: "The wardrobe you keep reaching for",
       product: all.find((p) => p.slug === "royal-blue-chikan-kurta") ?? all[0] },
@@ -125,7 +125,7 @@ export default async function HomePage() {
         secondaryHref="#shop-by-mood"
         secondaryLabel="Browse the Boutique"
         headline="A boutique where every kurta is finished by hand."
-        subhead="Womaniya by Mercy — slow-stitched chikankari, festive aari and tea-time dresses from Lucknow."
+        subhead="Womaniya by Mercy ,slow-stitched chikankari, festive aari and tea-time dresses from Lucknow."
         eyebrow="FW26 Lookbook · Festive in Bloom"
       />
 
@@ -161,8 +161,8 @@ export default async function HomePage() {
           </div>
         </Reveal>
         <div className="mt-8 lg:mt-10 flex justify-center">
-          <Link href="/festive-edit" className="btn-ghost">
-            View all 19 styles <ArrowRight size={14} className="ml-2" aria-hidden="true" />
+          <Link href="/explore" className="btn-ghost">
+            View all styles <ArrowRight size={14} className="ml-2" aria-hidden="true" />
           </Link>
         </div>
       </section>

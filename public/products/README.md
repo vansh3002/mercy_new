@@ -1,4 +1,4 @@
-# Product Images — Upload Guide
+# Product Images ,Upload Guide
 
 Drop real product photos into the subfolder for their role.
 **Never upload stock or placeholder images.** If a slot is empty, the app renders a branded cream placeholder card with product initials.
@@ -16,7 +16,7 @@ Drop real product photos into the subfolder for their role.
 
 ## Naming rule
 
-`{slug}.webp` — all lowercase, hyphenated, **must match the `slug` field in `data/products.json`**.
+`{slug}.webp` ,all lowercase, hyphenated, **must match the `slug` field in `data/products.json`**.
 
 - WebP preferred. PNG and JPG accepted.
 - For PDP: append `-NN` (zero-padded): `{slug}-01.webp`, `{slug}-02.webp`.

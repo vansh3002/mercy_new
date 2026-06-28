@@ -1,18 +1,34 @@
 "use client";
 
 import Link from "next/link";
-import { Instagram, Mail, MessageCircle } from "lucide-react";
+import { Instagram, Mail, MessageCircle, ChevronDown } from "lucide-react";
 import { useState } from "react";
 import { WomaniyaWordmark } from "./brand/WomaniyaWordmark";
 import { OrnateDivider } from "./brand/OrnateDivider";
 import { LotusMark } from "./brand/LotusMark";
 import Image from "next/image";
 
-const COL_HELP = [
-  { href: "/", label: "Size Guide" },
-  { href: "/", label: "Shipping & Returns" },
-  { href: "/", label: "FAQ" },
-  { href: "/", label: "Care Guide" },
+const HELP_ITEMS = [
+  {
+    label: "Size Guide",
+    content:
+      "All garments follow Indian standard sizing. We recommend sizing up for a relaxed fit. XS fits bust 32–34″, S fits 34–36″, M fits 36–38″, L fits 38–40″, XL fits 40–42″. When in doubt, go one size up.",
+  },
+  {
+    label: "Shipping & Returns",
+    content:
+      "We ship pan India. We offer a 1-day return window ,contact us within 24 hours of delivery for a replacement. Use the 'Need help?' button on your order page.",
+  },
+  {
+    label: "FAQ",
+    content:
+      "Q: Do you ship pan India? Yes, everywhere.\nQ: What payment methods are accepted? UPI.\nQ: Can I change my address after ordering? Contact us immediately on WhatsApp.\nQ: Is COD available? Not at the moment ,online payments only.",
+  },
+  {
+    label: "Care Guide",
+    content:
+      "Hand wash in cold water with mild detergent. Do not wring or tumble dry ,lay flat to dry in shade. Iron on low heat on the reverse side. Dry clean recommended for heavy embroidered pieces.",
+  },
 ];
 
 export function SiteFooter() {
@@ -23,6 +39,7 @@ export function SiteFooter() {
     e.preventDefault();
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.trim())) return;
     setSubmitted(true);
+    setEmail("");
   }
 
   return (
@@ -57,7 +74,7 @@ export function SiteFooter() {
               </div>
               {submitted ? (
                 <p className="text-xs text-success mt-2">
-                  Thank you. The first letter arrives Sunday morning.
+                  Thank you!! First Letter will arrive soon.
                 </p>
               ) : (
                 <p className="text-xs text-ink-faint mt-2">
@@ -81,7 +98,7 @@ export function SiteFooter() {
 
           {/* Help & Image Block - Side-by-side on all screens */}
           <div className="grid grid-cols-2 gap-6 lg:gap-10 items-start relative">
-            <FooterCol title="Help" links={COL_HELP} />
+            <HelpAccordion />
 
             {/* Absolute positioning so the tall image doesn't push the footer content down */}
             <div className="absolute right-0 top-0 w-1/2 h-[250px] lg:h-[400px] pointer-events-none z-0">
@@ -104,7 +121,7 @@ export function SiteFooter() {
           </p>
           <div className="hidden lg:flex items-center gap-2 text-ink-faint label-sm">
             <LotusMark className="w-3 h-3 text-gold" />
-            <span>Made with care in Lucknow & Mumbai</span>
+            <span>Made with care</span>
             <LotusMark className="w-3 h-3 text-gold" />
           </div>
         </div>
@@ -113,27 +130,42 @@ export function SiteFooter() {
   );
 }
 
-function FooterCol({
-  title,
-  links,
-}: {
-  title: string;
-  links: { href: string; label: string }[];
-}) {
+function HelpAccordion() {
+  const [open, setOpen] = useState<string | null>(null);
+
   return (
     <div>
-      <p className="label text-wine/80">{title}</p>
-      <ul className="mt-4 flex flex-col gap-2.5 text-sm">
-        {links.map((l) => (
-          <li key={l.label}>
-            <Link
-              href={l.href}
-              className="text-ink-dim hover:text-wine transition-colors"
-            >
-              {l.label}
-            </Link>
-          </li>
-        ))}
+      <p className="label text-wine/80 mb-4">Help</p>
+      <ul className="flex flex-col divide-y divide-line/40">
+        {HELP_ITEMS.map((item) => {
+          const isOpen = open === item.label;
+          return (
+            <li key={item.label}>
+              <button
+                type="button"
+                onClick={() => setOpen(isOpen ? null : item.label)}
+                className="w-full flex items-center justify-between gap-2 py-2.5 text-left text-sm text-ink-dim hover:text-wine transition-colors"
+                aria-expanded={isOpen}
+              >
+                <span className={isOpen ? "text-wine font-medium" : ""}>{item.label}</span>
+                <ChevronDown
+                  size={14}
+                  strokeWidth={1.75}
+                  className={`shrink-0 text-wine/60 transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`}
+                />
+              </button>
+              <div
+                className={`grid transition-all duration-300 ease-out ${
+                  isOpen ? "grid-rows-[1fr] opacity-100 pb-3" : "grid-rows-[0fr] opacity-0"
+                }`}
+              >
+                <div className="overflow-hidden text-xs text-ink-dim leading-relaxed whitespace-pre-line">
+                  {item.content}
+                </div>
+              </div>
+            </li>
+          );
+        })}
       </ul>
     </div>
   );

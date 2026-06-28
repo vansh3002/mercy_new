@@ -3,9 +3,9 @@ import { ProductList } from "@/components/ProductList";
 import { LotusMark } from "@/components/brand/LotusMark";
 
 export const metadata = {
-  title: "Explore Collection — Womaniya",
+  title: "Explore Collection ,Womaniya",
   description:
-    "Discover our full collection — trending styles, chikankari kurtas, festive sets and everyday wear. Curated by Mercy.",
+    "Discover our full collection ,trending styles, chikankari kurtas, festive sets and everyday wear. Curated by Mercy.",
 };
 
 export default async function ExplorePage() {
@@ -73,7 +73,7 @@ export default async function ExplorePage() {
               <span className="flex-1 h-px bg-gold/40" />
             </div>
             <p className="serif text-[13px] font-bold italic text-gold/80 -mt-0.5">
-              Trending Styles & Chikankari — Chosen by Mercy
+              Trending Styles & Chikankari ,Chosen by Mercy
             </p>
           </div>
         </div>

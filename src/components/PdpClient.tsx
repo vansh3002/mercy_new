@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import {
   Heart,
   Share2,
@@ -22,7 +22,7 @@ import { SizeSelector } from "./SizeSelector";
 import { DualCTA } from "./DualCTA";
 import { addToCart } from "@/lib/cart-client";
 import { ProductCardBoutique } from "./ProductCardBoutique";
-import { isWishlisted, toggleWishlist } from "@/lib/wishlist-store";
+import { useWishlist } from "@/context/WishlistContext";
 import { useVerification } from "@/hooks/useVerification";
 
 export function PdpClient({
@@ -39,17 +39,9 @@ export function PdpClient({
   );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [wishlisted, setWishlisted] = useState(false);
+  const { isWishlisted, toggle: toggleWishlist } = useWishlist();
   const { requireVerification, VerificationGate } = useVerification();
   const pendingAction = useRef<"buy" | null>(null);
-
-  // Sync with persistent wishlist store after mount
-  useEffect(() => {
-    setWishlisted(isWishlisted(product.id));
-    const handler = () => setWishlisted(isWishlisted(product.id));
-    window.addEventListener("wm:wishlist", handler);
-    return () => window.removeEventListener("wm:wishlist", handler);
-  }, [product.id]);
   const [descOpen, setDescOpen] = useState(true);
   const [careOpen, setCareOpen] = useState(false);
   const [shipOpen, setShipOpen] = useState(false);
@@ -65,7 +57,7 @@ export function PdpClient({
     setError(null);
 
     if (action === "buy") {
-      // Gate Buy Now behind OTP — skipped automatically if already verified
+      // Gate Buy Now behind OTP ,skipped automatically if already verified
       requireVerification(async () => {
         setLoading(true);
         const result = await addToCart(product.id, size, 1);
@@ -77,7 +69,7 @@ export function PdpClient({
       return;
     }
 
-    // Add to bag — no verification needed
+    // Add to bag ,no verification needed
     setLoading(true);
     const result = await addToCart(product.id, size, 1);
     setLoading(false);
@@ -113,20 +105,17 @@ export function PdpClient({
             {/* Wishlist Button Overlay */}
             <button
               type="button"
-              onClick={() => {
-                const next = toggleWishlist(product.id);
-                setWishlisted(next);
-              }}
+              onClick={() => toggleWishlist(product.id)}
               aria-label={
-                wishlisted ? "Remove from wishlist" : "Add to wishlist"
+                isWishlisted(product.id) ? "Remove from wishlist" : "Add to wishlist"
               }
-              aria-pressed={wishlisted}
+              aria-pressed={isWishlisted(product.id)}
               className="absolute top-4 right-4 w-11 h-11 rounded-full bg-surface/95 backdrop-blur flex items-center justify-center text-ink hover:text-wine shadow-sm transition-colors z-10"
             >
               <Heart
                 size={18}
                 strokeWidth={1.75}
-                className={wishlisted ? "fill-wine text-wine" : ""}
+                className={isWishlisted(product.id) ? "fill-wine text-wine" : ""}
               />
             </button>
 
@@ -260,7 +249,7 @@ export function PdpClient({
             />
           </div>
 
-          {/* Trust strip — 3 cols in a bordered box */}
+          {/* Trust strip ,3 cols in a bordered box */}
           <div className="grid grid-cols-3 divide-x divide-wine/10 border border-wine/10 rounded-xl bg-wine/[0.01] mb-6 w-full">
             <div className="flex flex-col items-center gap-1 py-3 px-2 text-center">
               <Truck size={16} strokeWidth={1.5} className="text-wine" aria-hidden="true" />
@@ -270,7 +259,7 @@ export function PdpClient({
             <div className="flex flex-col items-center gap-1 py-3 px-2 text-center">
               <RefreshCw size={16} strokeWidth={1.5} className="text-wine" aria-hidden="true" />
               <span className="text-[12px] font-semibold text-ink leading-tight">Easy Returns</span>
-              <span className="text-[11px] text-neutral-400">7 Days</span>
+              <span className="text-[11px] text-neutral-400">1 Day</span>
             </div>
             <div className="flex flex-col items-center gap-1 py-3 px-2 text-center">
               <ShieldCheck size={16} strokeWidth={1.5} className="text-wine" aria-hidden="true" />
@@ -299,7 +288,7 @@ export function PdpClient({
               onToggle={() => setShipOpen((v) => !v)}
             >
               <p>
-              Free shipping on your first order. Fast dispatch across India. 7-day easy returns and secure payments on every order.
+              Free shipping on your first order. Fast dispatch across India. 1-day return window ,contact us within 24 hours of delivery for a replacement. Secure payments on every order.
               </p>
             </Disclosure>
             <Disclosure

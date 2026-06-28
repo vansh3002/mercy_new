@@ -1,4 +1,4 @@
-# pdp/ — Product Detail Page gallery
+# pdp/ ,Product Detail Page gallery
 
 - Aspect: **3:4 portrait** (e.g. 1200 × 1600)
 - 2–5 images per product

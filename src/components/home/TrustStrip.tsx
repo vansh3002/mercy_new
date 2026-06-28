@@ -19,8 +19,8 @@ const ITEMS = [
   },
   {
     icon: RefreshCw,
-    title: "Easy Returns Available",
-    sub: "Hassle-free support",
+    title: "1-Day Easy Returns",
+    sub: "Hassle-free replacement support",
   },
   {
     icon: ShieldCheck,

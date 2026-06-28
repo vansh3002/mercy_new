@@ -7,9 +7,9 @@ import { LotusMark } from "@/components/brand/LotusMark";
 import { Sparkle } from "@/components/brand/Sparkle";
 
 export const metadata = {
-  title: "Festive Edit — Festive in Bloom",
+  title: "Festive Edit ,Festive in Bloom",
   description:
-    "Hand-finished chikankari, aari embroidery, and statement sets — the Womaniya Festive Edit, dispatched in 24 hours.",
+    "Hand-finished chikankari, aari embroidery, and statement sets ,the Womaniya Festive Edit, dispatched in 24 hours.",
 };
 
 export default async function FestiveEditPage() {

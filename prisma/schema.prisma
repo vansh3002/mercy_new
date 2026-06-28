@@ -71,7 +71,7 @@ model Order {
 
 model Cart {
   id         String   @id                   // = wm_cart cookie value
-  phone      String?                        // set after OTP verification
+  phone      String?                        // set after phone verification
   items      Json     @default("[]")        // CartItem[]
   couponCode String?
   couponAmt  Float?
@@ -80,13 +80,32 @@ model Cart {
   @@map("carts")
 }
 
-model Otp {
-  id        String   @id @default(cuid())
-  phone     String   @unique          // 10-digit Indian mobile
-  sessionId String                    // 2Factor session ID (used for verification)
-  attempts  Int      @default(0)      // block after 5 wrong guesses
+model Customer {
+  phone     String   @id                   // 10-digit Indian mobile number
+  wishlist  Json     @default("[]")        // product IDs saved to wishlist
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@map("otps")
+  @@map("customers")
+}
+
+model PageView {
+  date  String @id  // "YYYY-MM-DD"
+  count Int    @default(0)
+
+  @@map("page_views")
+}
+
+model CustomerQuery {
+  id           String   @id @default(cuid())
+  orderNumber  String
+  phone        String
+  customerName String
+  type         String   // "replacement" | "general" | "other"
+  message      String
+  status       String   @default("OPEN")   // "OPEN" | "RESOLVED"
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("customer_queries")
 }

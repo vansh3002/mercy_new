@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import { ensureCartId } from "@/lib/cart-cookie";
 import { addItem, getOrCreateCart } from "@/features/cart/store";
 import { buildCartView } from "@/features/cart/view";
+import { notifyAddToBag } from "@/lib/mailer";
 import type { Size } from "@/features/products/types";
 
 const VALID_SIZES: Size[] = ["XS", "S", "M", "L", "XL", "XXL"];
@@ -23,5 +25,14 @@ export async function POST(req: Request) {
     qty: Number.isFinite(body.qty) ? Number(body.qty) : 1,
   });
   const view = await buildCartView(updated);
+
+  // Fire-and-forget email alert
+  const jar = await cookies();
+  const phone = jar.get("wm_phone")?.value ?? null;
+  const addedLine = view.lines.find((l) => l.productId === body.productId && l.size === body.size);
+  if (addedLine) {
+    notifyAddToBag(phone, addedLine.title, body.size!);
+  }
+
   return NextResponse.json({ cart: view });
 }

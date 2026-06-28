@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { notifyOrderPlaced } from "@/lib/mailer";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -120,6 +121,25 @@ export async function POST(req: Request) {
       orderBy: { createdAt: "desc" },
       where: { customerName: body.customerName, phone: body.phone },
     });
+
+    // Fire-and-forget email ,never blocks the order response
+    if (saved) {
+      notifyOrderPlaced({
+        orderNumber: saved.orderNumber,
+        customerName: saved.customerName,
+        phone: saved.phone,
+        address: saved.address,
+        city: saved.city,
+        state: saved.state,
+        pincode: saved.pincode,
+        items: saved.items as Array<{ title: string; size: string; qty: number; price: number }>,
+        subtotal: saved.subtotal,
+        shippingCharge: saved.shippingCharge,
+        discount: saved.discount,
+        finalAmount: saved.finalAmount,
+        paymentMethod: saved.paymentMethod,
+      });
+    }
 
     return NextResponse.json({ success: true, order: saved }, { status: 201 });
   } catch (err) {

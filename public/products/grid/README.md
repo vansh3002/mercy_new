@@ -1,4 +1,4 @@
-# grid/ — PLP card images
+# grid/ ,PLP card images
 
 - Aspect: **3:4 portrait** (e.g. 800 × 1067)
 - One file per product, named `{slug}.webp`

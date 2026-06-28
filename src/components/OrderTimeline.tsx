@@ -1,4 +1,4 @@
-import { Check } from "lucide-react";
+import { Check, X } from "lucide-react";
 import type { OrderStatus } from "@/features/orders/types";
 
 const STEPS: { key: OrderStatus; label: string; sub: string }[] = [
@@ -9,6 +9,20 @@ const STEPS: { key: OrderStatus; label: string; sub: string }[] = [
 ];
 
 export function OrderTimeline({ status }: { status: OrderStatus }) {
+  if (status === "cancelled") {
+    return (
+      <div className="flex items-center gap-3 py-4">
+        <span className="w-8 h-8 rounded-full bg-red-100 border-2 border-red-400 flex items-center justify-center shrink-0">
+          <X size={15} strokeWidth={2.5} className="text-red-500" />
+        </span>
+        <div>
+          <p className="text-sm font-semibold text-red-500">Order Cancelled</p>
+          <p className="text-xs text-ink-dim mt-0.5">This order has been cancelled</p>
+        </div>
+      </div>
+    );
+  }
+
   const activeIdx = STEPS.findIndex((s) => s.key === status);
   return (
     <ol className="flex flex-col" aria-label="Order timeline">

@@ -10,7 +10,7 @@ export default function NotFound() {
       <Sparkle className="absolute bottom-16 left-10 w-3 h-3 text-gold/50" animated />
       <WomaniyaWordmark variant="stacked" tagline={false} showArch />
       <OrnateDivider width="md" className="my-4" />
-      <span className="label text-wine/80">404 — Page not found</span>
+      <span className="label text-wine/80">404 ,Page not found</span>
       <h1 className="serif text-4xl lg:text-5xl text-ink text-balance max-w-xl">
         This page took the day off.
       </h1>

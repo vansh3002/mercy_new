@@ -21,7 +21,7 @@ export function WomaniyaWordmark({
   return (
     <div
       className={`inline-flex flex-col items-center justify-center leading-none ${className}`}
-      aria-label="Womania — hand-finished boutique fashion"
+      aria-label="Womania ,hand-finished boutique fashion"
     >
       <div className={`relative w-[220px] ${hasTagline ? "h-[98px]" : "h-[32px]"}`}>
         <Image

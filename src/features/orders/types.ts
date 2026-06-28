@@ -1,7 +1,7 @@
 import type { Address, PaymentMethod } from "@/features/checkout/types";
 import type { CartLine } from "@/features/cart/types";
 
-export type OrderStatus = "placed" | "tailored" | "out_for_delivery" | "delivered";
+export type OrderStatus = "placed" | "tailored" | "out_for_delivery" | "delivered" | "cancelled";
 
 export interface Order {
   id: string;

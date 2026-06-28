@@ -2,50 +2,73 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Heart, ShoppingBag } from "lucide-react";
-import { getWishlist, toggleWishlist } from "@/lib/wishlist-store";
+import { Heart, ShoppingBag, Phone } from "lucide-react";
 import { ProductCardBoutique } from "@/components/ProductCardBoutique";
 import { LotusMark } from "@/components/brand/LotusMark";
 import { OrnateDivider } from "@/components/brand/OrnateDivider";
+import { OtpModal } from "@/components/OtpModal";
 import type { Product } from "@/features/products/types";
 
 export default function WishlistPage() {
+  const [verified, setVerified] = useState<boolean | null>(null);
+  const [showGate, setShowGate] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [wishlistIds, setWishlistIds] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  function syncWishlist() {
-    setWishlistIds(getWishlist());
+  async function loadWishlist() {
+    setLoading(true);
+    try {
+      // Fetch wishlist IDs from DB (uses wm_phone cookie server-side)
+      const [wishlistRes, productsRes] = await Promise.all([
+        fetch("/api/customer/wishlist", { cache: "no-store" }),
+        fetch("/api/products", { cache: "no-store" }),
+      ]);
+      const { wishlist: ids } = await wishlistRes.json() as { wishlist: string[] };
+      const { products: all } = await productsRes.json() as { products: Product[] };
+      setProducts(all.filter((p) => ids.includes(p.id)));
+    } finally {
+      setLoading(false);
+    }
   }
 
-  useEffect(() => {
-    syncWishlist();
-    window.addEventListener("wm:wishlist", syncWishlist);
-    return () => window.removeEventListener("wm:wishlist", syncWishlist);
-  }, []);
+  async function checkVerification() {
+    const res = await fetch("/api/auth/me", { cache: "no-store" });
+    const data = await res.json() as { verified: boolean };
+    if (data.verified) {
+      setVerified(true);
+      loadWishlist();
+    } else {
+      setVerified(false);
+    }
+  }
 
-  useEffect(() => {
-    setLoading(true);
-    fetch("/api/products")
-      .then((r) => r.json())
-      .then(({ products: all }: { products: Product[] }) => {
-        const ids = getWishlist();
-        setProducts(all.filter((p) => ids.includes(p.id)));
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, []);
+  useEffect(() => { checkVerification(); }, []);
 
-  // Re-filter when wishlist changes
+  // Re-load when wishlist changes (e.g. user removes an item)
   useEffect(() => {
-    setProducts((prev) => {
-      if (wishlistIds.length === 0) return [];
-      return prev.filter((p) => wishlistIds.includes(p.id));
-    });
-  }, [wishlistIds]);
+    if (!verified) return;
+    const handler = () => loadWishlist();
+    window.addEventListener("wm:wishlist", handler);
+    return () => window.removeEventListener("wm:wishlist", handler);
+  }, [verified]);
+
+  function handleVerified() {
+    setShowGate(false);
+    setVerified(true);
+    loadWishlist();
+  }
+
+  if (verified === null) return null;
 
   return (
     <div className="min-h-screen">
+      {showGate && (
+        <OtpModal
+          onVerified={handleVerified}
+          onClose={() => setShowGate(false)}
+        />
+      )}
+
       {/* Page header */}
       <section className="relative overflow-hidden bg-[#FAF5F0] border-b border-line/40 py-8 lg:py-12">
         <LotusMark className="absolute top-3 left-4 w-5 h-5 text-lotus/30 rotate-[-15deg]" />
@@ -58,24 +81,42 @@ export default function WishlistPage() {
           </div>
           <h1 className="serif text-3xl lg:text-4xl text-ink">Wishlist</h1>
           <OrnateDivider className="mx-auto mt-4 w-40 text-gold/60" />
-          {!loading && wishlistIds.length > 0 && (
+          {verified && !loading && products.length > 0 && (
             <p className="mt-3 text-sm text-ink-dim">
-              {wishlistIds.length} {wishlistIds.length === 1 ? "piece" : "pieces"} saved
+              {products.length} {products.length === 1 ? "piece" : "pieces"} saved
             </p>
           )}
         </div>
       </section>
 
       <div className="container-editorial py-8 lg:py-12">
-        {loading ? (
-          /* Loading skeleton */
+        {!verified ? (
+          /* Phone gate */
+          <div className="flex flex-col items-center justify-center py-24 gap-6 text-center max-w-sm mx-auto">
+            <div className="w-20 h-20 rounded-full bg-wine/10 flex items-center justify-center">
+              <Phone size={36} className="text-wine" strokeWidth={1.25} />
+            </div>
+            <div>
+              <h2 className="serif text-2xl text-ink mb-2">Verify your number</h2>
+              <p className="text-sm text-ink-dim leading-relaxed">
+                Enter your mobile number to see your saved pieces.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowGate(true)}
+              className="inline-flex items-center gap-2 h-12 px-8 bg-wine text-on-accent rounded-full label text-xs tracking-widest uppercase hover:bg-wine/90 transition-colors"
+            >
+              Enter Number
+            </button>
+          </div>
+        ) : loading ? (
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
             {Array.from({ length: 4 }).map((_, i) => (
               <div key={i} className="aspect-[3/4] rounded-sm bg-surface-2 animate-pulse" />
             ))}
           </div>
         ) : products.length === 0 ? (
-          /* Empty state */
           <div className="flex flex-col items-center justify-center py-24 gap-6 text-center max-w-sm mx-auto">
             <div className="w-20 h-20 rounded-full bg-surface-2 flex items-center justify-center">
               <Heart size={36} className="text-ink-dim/50" strokeWidth={1.25} />
@@ -89,7 +130,7 @@ export default function WishlistPage() {
               </p>
             </div>
             <Link
-              href="/festive-edit"
+              href="/explore"
               className="inline-flex items-center gap-2 h-12 px-8 bg-wine text-on-accent rounded-full label text-xs tracking-widest uppercase hover:bg-wine/90 transition-colors"
             >
               <ShoppingBag size={15} strokeWidth={1.75} />

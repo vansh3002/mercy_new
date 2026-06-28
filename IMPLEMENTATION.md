@@ -14,14 +14,14 @@ All photos live under `public/products/`. Each subfolder has its own `README.md`
 | PDP gallery       | `public/products/pdp/`          | 3:4    | 1200 × 1600  | `{slug}-01.webp`, `{slug}-02.webp`, … |
 | Lookbook hero     | `public/products/hero/`         | 4:5    | 1600 × 2000  | `{slug}.webp` (only the home hero) |
 | Mood tile         | `public/products/mood/`         | 1:1    | 1000 × 1000  | `everyday.webp`, `festive.webp`, `light-wear.webp`, `tea-time.webp` |
-| Cart thumb (opt)  | `public/products/cart/`         | 3:4    | 440 × 560    | `{slug}.webp` — falls back to `grid/` |
+| Cart thumb (opt)  | `public/products/cart/`         | 3:4    | 440 × 560    | `{slug}.webp` ,falls back to `grid/` |
 | Collection banner | `public/products/collections/`  | 16:9   | 1600 × 900   | `festive-edit.webp`, etc.         |
 
 Rules:
 - Filename must equal the product's `slug` in `data/products.json`.
 - Lowercase, hyphenated, no spaces or special characters.
 - WebP preferred; PNG/JPG accepted.
-- If a slot is empty the app renders a branded cream placeholder card with the product's initials — never a stock photo.
+- If a slot is empty the app renders a branded cream placeholder card with the product's initials ,never a stock photo.
 
 ---
 
@@ -63,12 +63,12 @@ Rules:
 
 ### Field reference
 
-- **`collection`** — one of `festive-edit` · `everyday` · `light-wear` · `tea-time`. Drives `/festive-edit` and `/collections/[mood]`.
-- **`mood`** — same four values. Drives the home "Shop by Mood" tiles.
-- **`discountPct`** — show gold `% OFF` badge when ≥ 10.
-- **`popularity`** — integer used for the default "Popular" sort.
-- **`createdAt`** — ISO date used for the "Newest" sort.
-- **`stock`** — informational on PDP; not currently enforced at checkout.
+- **`collection`** ,one of `festive-edit` · `everyday` · `light-wear` · `tea-time`. Drives `/festive-edit` and `/collections/[mood]`.
+- **`mood`** ,same four values. Drives the home "Shop by Mood" tiles.
+- **`discountPct`** ,show gold `% OFF` badge when ≥ 10.
+- **`popularity`** ,integer used for the default "Popular" sort.
+- **`createdAt`** ,ISO date used for the "Newest" sort.
+- **`stock`** ,informational on PDP; not currently enforced at checkout.
 
 ---
 
@@ -78,7 +78,7 @@ The header renders `public/brand/womania-logo.jpg` as an `<Image>`. To swap:
 
 1. Drop the new file at `public/brand/womania-logo.jpg` (or `.png` / `.svg`).
 2. If you change the file extension, update the `src` in `src/components/BoutiqueHeader.tsx`.
-3. The header `<Image>` is set to `priority` and a fixed height; the new file should be a horizontal wordmark — square logos crop visually.
+3. The header `<Image>` is set to `priority` and a fixed height; the new file should be a horizontal wordmark ,square logos crop visually.
 
 ---
 

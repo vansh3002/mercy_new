@@ -19,7 +19,7 @@ interface Props {
 }
 
 /**
- * Cinematic colour-story switcher — picking a colour swatch on the left replaces
+ * Cinematic colour-story switcher ,picking a colour swatch on the left replaces
  * the editorial portrait on the right. Pure CSS crossfade + interactive state.
  */
 export function ColorStories({ stories }: Props) {
@@ -35,7 +35,7 @@ export function ColorStories({ stories }: Props) {
             Find your shade. The piece will find you.
           </h2>
           <p className="mt-4 text-ink-dim max-w-md">
-            Each colour is paired with a piece we love wearing it as. Tap a swatch — the look
+            Each colour is paired with a piece we love wearing it as. Tap a swatch ,the look
             updates beside it.
           </p>
 

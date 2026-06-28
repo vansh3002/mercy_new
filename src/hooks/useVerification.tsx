@@ -7,7 +7,7 @@ interface UseVerificationReturn {
   /** Call this before any gated action. If already verified → runs action immediately.
    *  If not verified → shows OTP modal, then runs action after verification. */
   requireVerification: (onVerified: (phone: string) => void) => Promise<void>;
-  /** Render this in your component tree — it's null when not needed */
+  /** Render this in your component tree ,it's null when not needed */
   VerificationGate: React.ReactNode;
 }
 
@@ -22,15 +22,15 @@ export function useVerification(): UseVerificationReturn {
       const data = await res.json() as { verified: boolean; phone: string | null };
 
       if (data.verified && data.phone) {
-        // ✅ Already verified — skip OTP, go straight to action
+        // ✅ Already verified ,skip OTP, go straight to action
         onVerified(data.phone);
         return;
       }
     } catch {
-      // Network error — fall through to show modal
+      // Network error ,fall through to show modal
     }
 
-    // Not verified — show OTP modal
+    // Not verified ,show OTP modal
     setPendingCallback(() => onVerified);
     setShowOtp(true);
   }, []);

@@ -1,9 +1,9 @@
 import type { Metadata, Viewport } from "next";
 import { Cormorant_Garamond, Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
-import { BoutiqueHeader } from "@/components/BoutiqueHeader";
-import { BottomNav } from "@/components/BottomNav";
-import { SiteFooter } from "@/components/SiteFooter";
+import { WishlistProvider } from "@/context/WishlistContext";
+import { StoreShell } from "@/components/StoreShell";
+import { Analytics } from "@/components/Analytics";
 
 const sans = Inter({
   subsets: ["latin"],
@@ -30,11 +30,11 @@ const display = Playfair_Display({
 export const metadata: Metadata = {
   metadataBase: new URL("https://womaniya.in"),
   title: {
-    default: "Womaniya — Hand-finished boutique fashion from Lucknow",
+    default: "Womaniya ,Hand-finished boutique fashion from Lucknow",
     template: "%s · Womaniya",
   },
   description:
-    "Womaniya — a quiet, premium boutique by Mercy. Hand-finished chikankari kurtas, festive sets, and tea-time dresses, crafted in Lucknow and dispatched within 24 hours.",
+    "Womaniya ,a quiet, premium boutique by Mercy. Hand-finished chikankari kurtas, festive sets, and tea-time dresses, crafted in Lucknow and dispatched within 24 hours.",
   applicationName: "Womaniya",
   keywords: [
     "Womaniya",
@@ -45,9 +45,9 @@ export const metadata: Metadata = {
     "designer suit set",
   ],
   openGraph: {
-    title: "Womaniya — Hand-finished boutique fashion",
+    title: "Womaniya ,Hand-finished boutique fashion",
     description:
-      "Hand-finished chikankari kurtas, festive sets, and tea-time dresses from Womaniya — a quiet, premium boutique by Mercy.",
+      "Hand-finished chikankari kurtas, festive sets, and tea-time dresses from Womaniya ,a quiet, premium boutique by Mercy.",
     url: "https://womaniya.in",
     siteName: "Womaniya",
     locale: "en_IN",
@@ -69,10 +69,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${sans.variable} ${serif.variable} ${display.variable}`}>
       <body className="bg-bg text-ink min-h-screen flex flex-col">
-        <BoutiqueHeader />
-        <main className="flex-1">{children}</main>
-        <SiteFooter />
-        <BottomNav />
+        <WishlistProvider>
+          <Analytics />
+          <StoreShell>{children}</StoreShell>
+        </WishlistProvider>
       </body>
     </html>
   );

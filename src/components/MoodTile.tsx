@@ -12,7 +12,7 @@ interface Props {
   count?: number;
 }
 
-/** Editorial mood tile — taller than wide, with overlay caption and corner CTA. */
+/** Editorial mood tile ,taller than wide, with overlay caption and corner CTA. */
 export function MoodTile({ label, href, imageSrc, caption, script, count }: Props) {
   return (
     <Link

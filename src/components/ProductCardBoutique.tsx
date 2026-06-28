@@ -9,7 +9,8 @@ import type { Product, Size } from "@/features/products/types";
 import { rupees, showOffBadge } from "@/lib/format";
 import { SafeImage } from "./SafeImage";
 import { addToCart } from "@/lib/cart-client";
-import { isWishlisted, toggleWishlist } from "@/lib/wishlist-store";
+import { useVerification } from "@/hooks/useVerification";
+import { useWishlist } from "@/context/WishlistContext";
 
 const SIZE_HINTS = ["S", "M", "L", "XL"] as const;
 
@@ -17,20 +18,13 @@ interface Props {
   product: Product;
   /** Optional priority loading for above-fold rows. */
   priority?: boolean;
-  /** Visual density — "default" or "editorial" (slightly taller card). */
+  /** Visual density ,"default" or "editorial" (slightly taller card). */
   density?: "default" | "editorial";
 }
 
 export function ProductCardBoutique({ product, priority = false, density = "default" }: Props) {
-  const [wishlisted, setWishlisted] = useState(false);
-
-  // Initialise from localStorage after mount
-  useEffect(() => {
-    setWishlisted(isWishlisted(product.id));
-    const handler = () => setWishlisted(isWishlisted(product.id));
-    window.addEventListener("wm:wishlist", handler);
-    return () => window.removeEventListener("wm:wishlist", handler);
-  }, [product.id]);
+  const { isWishlisted, toggle: ctxToggle } = useWishlist();
+  const wishlisted = isWishlisted(product.id);
   const [hovering, setHovering] = useState(false);
   const [quickOpen, setQuickOpen] = useState(false);
   const [addingSize, setAddingSize] = useState<Size | null>(null);
@@ -40,6 +34,7 @@ export function ProductCardBoutique({ product, priority = false, density = "defa
   const [activeColorIdx, setActiveColorIdx] = useState(0);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const { requireVerification, VerificationGate } = useVerification();
 
   const off = showOffBadge(product.discountPct);
   const showHover = product.images.hover && product.images.hover !== product.images.grid;
@@ -59,6 +54,12 @@ export function ProductCardBoutique({ product, priority = false, density = "defa
     if (res) {
       setSizeDrawerOpen(false);
       setSelectedSize(null);
+      // Fire-and-forget intent signal ,doesn't block navigation
+      fetch("/api/track/buynow", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productTitle: product.title, size }),
+      }).catch(() => {});
       router.push("/checkout");
       router.refresh();
     }
@@ -93,7 +94,7 @@ export function ProductCardBoutique({ product, priority = false, density = "defa
           density === "editorial" ? "aspect-[4/5]" : "aspect-[3/4]",
           "shadow-card group-hover:shadow-cardHover transition-shadow duration-500",
         ].join(" ")}
-        aria-label={`${product.title} — ${rupees(product.price)}`}
+        aria-label={`${product.title} ,${rupees(product.price)}`}
       >
         {/* Base image */}
         <SafeImage
@@ -115,7 +116,7 @@ export function ProductCardBoutique({ product, priority = false, density = "defa
         {showHover && (
           <SafeImage
             src={product.images.hover}
-            alt={`${product.title} — alternate view`}
+            alt={`${product.title} ,alternate view`}
             title={product.title}
             fill
             sizes="(min-width: 1280px) 22vw, (min-width: 1024px) 28vw, (min-width: 640px) 45vw, 90vw"
@@ -135,13 +136,14 @@ export function ProductCardBoutique({ product, priority = false, density = "defa
 
       </Link>
 
+      {VerificationGate}
+
       {/* Wishlist */}
       <button
         type="button"
         onClick={(e) => {
           e.preventDefault();
-          const next = toggleWishlist(product.id);
-          setWishlisted(next);
+          requireVerification(() => ctxToggle(product.id));
         }}
         aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
         aria-pressed={wishlisted}
@@ -170,12 +172,12 @@ export function ProductCardBoutique({ product, priority = false, density = "defa
             </span>
           )}
         </div>        
-        {/* Buy Now Button in place of inline sizes listing */}
+        {/* Buy Now ,verify phone first, then open size drawer */}
         <button
           type="button"
           onClick={(e) => {
             e.preventDefault();
-            setSizeDrawerOpen(true);
+            requireVerification(() => setSizeDrawerOpen(true));
           }}
           className="w-full mt-2 h-10 bg-wine text-on-accent text-[11px] font-semibold tracking-wider rounded-md hover:bg-wine-strong transition-colors uppercase"
         >
@@ -207,7 +209,7 @@ export function ProductCardBoutique({ product, priority = false, density = "defa
               </button>
             </div>
 
-            {/* Size buttons — tap to select */}
+            {/* Size buttons ,tap to select */}
             <div className="flex items-center justify-center gap-2.5 my-0.5">
               {product.sizes.map((s) => {
                 const isSelected = selectedSize === s;
@@ -229,7 +231,7 @@ export function ProductCardBoutique({ product, priority = false, density = "defa
               })}
             </div>
 
-            {/* Buy Now CTA — enabled only after a size is picked */}
+            {/* Buy Now CTA ,enabled only after a size is picked */}
             <button
               type="button"
               disabled={!selectedSize || loading}
@@ -257,7 +259,7 @@ export function ProductCardBoutique({ product, priority = false, density = "defa
 }
 
 /** Renders children into document.body via a portal so that `fixed` positioning
- *  always anchors to the true viewport — not to any parent stacking context. */
+ *  always anchors to the true viewport ,not to any parent stacking context. */
 function SizeDrawerPortal({
   open,
   children,

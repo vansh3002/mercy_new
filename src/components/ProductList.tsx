@@ -20,8 +20,6 @@ const MOODS: { label: string; value: Mood }[] = [
 ];
 
 const SORTS: { label: string; value: SortKey }[] = [
-  { label: "Popular", value: "popular" },
-  { label: "Newest", value: "new" },
   { label: "Price: Low to High", value: "price-asc" },
   { label: "Price: High to Low", value: "price-desc" },
 ];
@@ -32,7 +30,7 @@ interface Props {
 }
 
 export function ProductList({ products, showMoodFilter = true }: Props) {
-  const [sort, setSort] = useState<SortKey>("popular");
+  const [sort, setSort] = useState<SortKey>("price-asc");
   const [size, setSize] = useState<Size | null>(null);
   const [maxPrice, setMaxPrice] = useState<number | null>(null);
   const [mood, setMood] = useState<Mood | null>(null);
@@ -191,7 +189,6 @@ export function ProductList({ products, showMoodFilter = true }: Props) {
           {mood.replace("-", " ")}
         </Chip>
       )}
-      )}
       {activeCount > 0 && (
         <button
           type="button"
@@ -218,35 +215,37 @@ export function ProductList({ products, showMoodFilter = true }: Props) {
           <button
             type="button"
             onClick={() => setFilterOpen(true)}
-            className="lg:hidden h-10 px-3.5 inline-flex items-center gap-2 border border-line bg-surface text-ink label rounded-full hover:border-wine transition-colors"
+            className="lg:hidden h-9 px-3 inline-flex items-center gap-2 border-2 border-wine/20 bg-surface text-wine label-sm rounded-full hover:border-wine hover:bg-wine/5 transition-all"
             aria-haspopup="dialog"
           >
-            <SlidersHorizontal size={14} aria-hidden="true" />
-            Filter
+            <SlidersHorizontal size={13} aria-hidden="true" />
+            FILTER
             {activeCount > 0 && (
-              <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-wine text-on-accent text-[10px] font-semibold">
+              <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-wine text-on-accent text-[9px] font-semibold">
                 {activeCount}
               </span>
             )}
           </button>
-          <p className="text-xs text-ink-dim hidden sm:block">
+          <p className="text-[11px] text-ink-dim hidden sm:block">
             <span className="text-ink font-semibold">{filtered.length}</span> styles
           </p>
-          <div className="relative ml-auto">
+          <div className="relative ml-auto group">
             <label className="sr-only" htmlFor="sort-by">Sort</label>
             <select
               id="sort-by"
               value={sort}
               onChange={(e) => setSort(e.target.value as SortKey)}
-              className="h-10 pl-3.5 pr-9 border border-line bg-surface text-ink label rounded-full appearance-none cursor-pointer hover:border-wine transition-colors"
+              className="h-9 pl-3.5 pr-8 border-2 border-wine/20 bg-surface text-wine label-sm rounded-full appearance-none cursor-pointer hover:border-wine hover:bg-wine/5 transition-all outline-none focus:border-wine focus:ring-0"
             >
               {SORTS.map((s) => (
-                <option key={s.value} value={s.value}>{s.label}</option>
+                <option key={s.value} value={s.value} className="text-ink bg-surface text-xs">
+                  {s.label.toUpperCase()}
+                </option>
               ))}
             </select>
             <ChevronDown
               size={14}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-dim pointer-events-none"
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-wine pointer-events-none transition-transform group-hover:translate-y-[-40%]"
               aria-hidden="true"
             />
           </div>

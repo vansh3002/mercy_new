@@ -1,4 +1,4 @@
-# hero/ — Lookbook hero image
+# hero/ ,Lookbook hero image
 
 - Aspect: **4:5 portrait** (e.g. 1600 × 2000)
 - One editorial photo for the home page lookbook

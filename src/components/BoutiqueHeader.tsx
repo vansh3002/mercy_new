@@ -2,14 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Heart, Menu, Search, ShoppingBag, X, Home, ChevronRight } from "lucide-react";
+import { Heart, Menu, Search, ShoppingBag, X, Home, ChevronRight, Receipt } from "lucide-react";
 import { useEffect, useState } from "react";
 import { AnnouncementBar } from "./AnnouncementBar";
 import { WomaniyaWordmark } from "./brand/WomaniyaWordmark";
 import { OrnateDivider } from "./brand/OrnateDivider";
 import { LotusMark } from "./brand/LotusMark";
 import { fetchCart } from "@/lib/cart-client";
-import { getWishlist } from "@/lib/wishlist-store";
+import { useWishlist } from "@/context/WishlistContext";
 
 const NAV = [
   { href: "/", label: "Home" },
@@ -21,7 +21,7 @@ export function BoutiqueHeader() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [cartCount, setCartCount] = useState<number>(0);
-  const [wishlistCount, setWishlistCount] = useState<number>(0);
+  const { count: wishlistCount } = useWishlist();
   const pathname = usePathname();
 
   useEffect(() => {
@@ -55,14 +55,6 @@ export function BoutiqueHeader() {
     };
   }, [pathname]);
 
-  useEffect(() => {
-    function syncWishlist() {
-      setWishlistCount(getWishlist().length);
-    }
-    syncWishlist();
-    window.addEventListener("wm:wishlist", syncWishlist);
-    return () => window.removeEventListener("wm:wishlist", syncWishlist);
-  }, []);
 
   useEffect(() => {
     setOpen(false);
@@ -78,7 +70,7 @@ export function BoutiqueHeader() {
           scrolled ? "border-line-strong/60 shadow-sm" : "border-line/60",
         ].join(" ")}
       >
-        {/* Main row — wordmark dominant */}
+        {/* Main row ,wordmark dominant */}
         <div className="container-boutique grid grid-cols-[1fr_auto_1fr] items-start gap-3 pt-1 pb-16">
           {/* Left: hamburger (mobile) + search (desktop) */}
           <div className="flex items-center gap-1 justify-self-start">
@@ -108,7 +100,7 @@ export function BoutiqueHeader() {
           {/* Center: brand wordmark */}
           <Link
             href="/"
-            aria-label="Womania — Home"
+            aria-label="Womania ,Home"
             className="justify-self-center group translate-x-8"
           >
             <WomaniyaWordmark
@@ -119,8 +111,15 @@ export function BoutiqueHeader() {
             />
           </Link>
 
-          {/* Right: wishlist, bag */}
+          {/* Right: orders (desktop), wishlist, bag */}
           <div className="flex items-center gap-1.5 justify-self-end">
+            <Link
+              href="/orders"
+              aria-label="My orders"
+              className="hidden lg:inline-flex w-12 h-12 items-center justify-center text-ink hover:text-wine transition-colors rounded-full"
+            >
+              <Receipt size={24} strokeWidth={1.5} />
+            </Link>
             <Link
               href="/wishlist"
               aria-label="Wishlist"
@@ -278,7 +277,15 @@ export function BoutiqueHeader() {
               </Link>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 mt-4">
+            <div className="grid grid-cols-3 gap-3 mt-4">
+              <Link
+                href="/orders"
+                onClick={() => setOpen(false)}
+                className="h-11 inline-flex items-center justify-center gap-2 border border-wine text-wine rounded-full label"
+              >
+                <Receipt size={14} strokeWidth={1.75} />
+                Orders
+              </Link>
               <Link
                 href="/wishlist"
                 onClick={() => setOpen(false)}
