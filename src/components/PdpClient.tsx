@@ -34,6 +34,30 @@ export function PdpClient({
 }) {
   const router = useRouter();
   const [activeImg, setActiveImg] = useState(0);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const handleScroll = () => {
+    if (!scrollRef.current) return;
+    const { scrollLeft, clientWidth } = scrollRef.current;
+    if (clientWidth === 0) return;
+    const index = Math.round(scrollLeft / clientWidth);
+    if (index !== activeImg) {
+      setActiveImg(index);
+    }
+  };
+
+  const scrollToImage = (index: number) => {
+    if (!scrollRef.current) {
+      setActiveImg(index);
+      return;
+    }
+    scrollRef.current.scrollTo({
+      left: index * scrollRef.current.clientWidth,
+      behavior: "smooth",
+    });
+    setActiveImg(index);
+  };
+
   const [size, setSize] = useState<Size | null>(
     product.sizes[1] ?? product.sizes[0] ?? null,
   );
@@ -89,7 +113,67 @@ export function PdpClient({
       <div className="lg:grid lg:grid-cols-[1.15fr_1fr] lg:gap-14 lg:items-start">
         {/* Gallery */}
         <section className="lg:sticky lg:top-32">
-          <div className="relative aspect-[3/4] bg-surface-2 overflow-hidden rounded-[2px] shadow-card">
+          {/* Mobile: Swipeable Gallery */}
+          <div className="lg:hidden relative">
+            <div
+              ref={scrollRef}
+              onScroll={handleScroll}
+              className="relative aspect-[3/4] bg-surface-2 overflow-x-auto snap-x snap-mandatory flex scrollbar-hide"
+              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            >
+              {images.map((img, i) => (
+                <div key={i} className="min-w-full h-full snap-center relative">
+                  <SafeImage
+                    src={img}
+                    alt={`${product.title} ${i + 1}`}
+                    fill
+                    priority={i === 0}
+                    sizes="100vw"
+                    className="object-cover"
+                    fallbackClassName="absolute inset-0 w-full h-full"
+                  />
+                </div>
+              ))}
+            </div>
+
+            {/* Wishlist Button Overlay (Mobile) */}
+            <button
+              type="button"
+              onClick={() => toggleWishlist(product.id)}
+              aria-label={
+                isWishlisted(product.id) ? "Remove from wishlist" : "Add to wishlist"
+              }
+              className="absolute top-4 right-4 w-11 h-11 rounded-full bg-surface/95 backdrop-blur flex items-center justify-center text-ink hover:text-wine shadow-sm transition-colors z-10"
+            >
+              <Heart
+                size={18}
+                strokeWidth={1.75}
+                className={isWishlisted(product.id) ? "fill-wine text-wine" : ""}
+              />
+            </button>
+
+            {/* Share Button Overlay (Mobile) */}
+            <button
+              type="button"
+              onClick={() => {
+                if (navigator.share) {
+                  navigator.share({
+                    title: product.title,
+                    url: window.location.href,
+                  }).catch(() => {});
+                } else {
+                  navigator.clipboard.writeText(window.location.href);
+                  alert("Link copied to clipboard!");
+                }
+              }}
+              className="absolute top-[68px] right-4 w-11 h-11 rounded-full bg-surface/95 backdrop-blur flex items-center justify-center text-ink hover:text-wine shadow-sm transition-colors z-10"
+            >
+              <Share2 size={18} strokeWidth={1.75} />
+            </button>
+          </div>
+
+          {/* Desktop: Static Gallery with Animation */}
+          <div className="hidden lg:block relative aspect-[3/4] bg-surface-2 overflow-hidden rounded-[2px] shadow-card">
             <SafeImage
               key={images[activeImg]}
               src={images[activeImg]}
@@ -102,7 +186,7 @@ export function PdpClient({
               fallbackClassName="absolute inset-0 w-full h-full"
             />
 
-            {/* Wishlist Button Overlay */}
+            {/* Wishlist Button Overlay (Desktop) */}
             <button
               type="button"
               onClick={() => toggleWishlist(product.id)}
@@ -119,7 +203,7 @@ export function PdpClient({
               />
             </button>
 
-            {/* Share Button Overlay */}
+            {/* Share Button Overlay (Desktop) */}
             <button
               type="button"
               onClick={() => {
@@ -156,7 +240,7 @@ export function PdpClient({
                   role="tab"
                   aria-selected={i === activeImg}
                   aria-label={`Image ${i + 1}`}
-                  onClick={() => setActiveImg(i)}
+                  onClick={() => scrollToImage(i)}
                   className={[
                     "h-[3px] rounded-full transition-all duration-500",
                     i === activeImg ? "w-8 bg-wine" : "w-3 bg-line",

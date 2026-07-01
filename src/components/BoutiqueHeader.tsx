@@ -277,29 +277,29 @@ export function BoutiqueHeader() {
               </Link>
             </div>
 
-            <div className="grid grid-cols-3 gap-3 mt-4">
+            <div className="grid grid-cols-3 gap-2.5 mt-4">
               <Link
                 href="/orders"
                 onClick={() => setOpen(false)}
-                className="h-11 inline-flex items-center justify-center gap-2 border border-wine text-wine rounded-full label"
+                className="h-11 inline-flex items-center justify-center gap-1.5 border border-wine text-wine rounded-full text-[10.5px] font-semibold tracking-[0.06em] uppercase"
               >
-                <Receipt size={14} strokeWidth={1.75} />
+                <Receipt size={13} strokeWidth={1.75} />
                 Orders
               </Link>
               <Link
                 href="/wishlist"
                 onClick={() => setOpen(false)}
-                className="h-11 inline-flex items-center justify-center gap-2 border border-wine text-wine rounded-full label"
+                className="h-11 inline-flex items-center justify-center gap-1.5 border border-wine text-wine rounded-full text-[10.5px] font-semibold tracking-[0.06em] uppercase"
               >
-                <Heart size={14} strokeWidth={1.75} />
+                <Heart size={13} strokeWidth={1.75} />
                 Wishlist
               </Link>
               <Link
                 href="/cart"
                 onClick={() => setOpen(false)}
-                className="h-11 inline-flex items-center justify-center gap-2 bg-wine text-on-accent rounded-full label"
+                className="h-11 inline-flex items-center justify-center gap-1.5 bg-wine text-on-accent rounded-full text-[10.5px] font-semibold tracking-[0.06em] uppercase"
               >
-                <ShoppingBag size={14} strokeWidth={1.75} />
+                <ShoppingBag size={13} strokeWidth={1.75} />
                 Bag
               </Link>
             </div>
